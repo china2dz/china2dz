@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login – China2DZ</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  min-height: 100vh;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+  position: relative;
+  font-family: 'Montserrat', sans-serif;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 20%, rgba(103, 145, 223, 0.13) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 80%, rgba(0,188,212,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.back-link {
+  position: fixed;
+  top: 22px;
+  left: 28px;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: color 0.25s;
+  z-index: 100;
+  text-decoration: none;
+}
+.back-link:hover { color: #fff; }
+.back-link svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+
+.auth-wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+}
+.auth-logo { text-align: center; margin-bottom: 30px; }
+.auth-logo a { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 900; text-decoration: none; }
+.logo-china { color: #00bcd4; }
+.logo-2dz   { color: #fff; }
+
+.auth-card {
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+  overflow: hidden;
+}
+
+/* STEPS */
+.step { display: none; padding: 38px 36px; animation: fadeIn 0.3s ease; }
+.step.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.progress { display: flex; gap: 5px; margin-bottom: 26px; }
+.progress-dot { height: 3px; flex: 1; border-radius: 3px; background: rgba(255,255,255,0.1); transition: background 0.3s; }
+.progress-dot.on { background: #00bcd4; }
+
+.step-title { font-family: 'Playfair Display', serif; font-size: 25px; font-weight: 900; color: #fff; margin-bottom: 5px; }
+.step-sub { font-size: 13px; color: rgba(255,255,255,0.38); margin-bottom: 30px; font-weight: 500; line-height: 1.5; }
+
+/* ROLE CARDS */
+.role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+.role-card {
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 16px;
+  padding: 26px 16px 22px;
+  cursor: pointer;
+  text-align: center;
+  background: rgba(255,255,255,0.025);
+  transition: border-color 0.22s, background 0.22s, transform 0.22s, box-shadow 0.22s;
+  user-select: none;
+}
+.role-card:hover { border-color: rgba(0,188,212,0.45); background: rgba(0,188,212,0.055); transform: translateY(-2px); }
+.role-card.selected { border-color: #00bcd4 !important; background: rgba(0,188,212,0.1) !important; box-shadow: 0 0 0 3px rgba(0,188,212,0.13); }
+.role-icon-box {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  margin: 0 auto 13px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.07);
+  transition: background 0.22s, border-color 0.22s;
+}
+.role-card.selected .role-icon-box { background: rgba(0,188,212,0.14); border-color: rgba(0,188,212,0.28); }
+.role-icon-box svg { width: 24px; height: 24px; stroke: rgba(255,255,255,0.6); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.22s; }
+.role-card.selected .role-icon-box svg { stroke: #26c6da; }
+.role-name { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+.role-desc { font-size: 11px; color: rgba(255,255,255,0.35); line-height: 1.5; }
+
+/* FIELDS */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { margin-bottom: 13px; }
+.field label { display: block; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 7px; }
+.field input[type=text],
+.field input[type=email],
+.field input[type=password],
+.field input[type=tel] {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 11px;
+  padding: 13px 15px;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.22s, background 0.22s;
+  display: block;
+}
+.field input::placeholder { color: rgba(255,255,255,0.2); }
+.field input:focus { border-color: #00bcd4; background: rgba(0,188,212,0.06); }
+.field .err-msg { font-size: 11px; color: #26c6da; margin-top: 5px; display: none; font-weight: 600; }
+.field.has-error .err-msg { display: block; }
+.field.has-error input { border-color: #26c6da; }
+
+/* PHONE ROW */
+.phone-row { display: flex; gap: 8px; align-items: stretch; }
+.phone-row input[type=tel] { flex: 1; }
+
+.country-selector { position: relative; flex-shrink: 0; }
+.country-btn {
+  height: 48px;
+  min-width: 95px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  cursor: pointer;
+  padding: 0 10px;
+  transition: border-color 0.22s, background 0.22s;
+  white-space: nowrap;
+  user-select: none;
+}
+.country-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.07); }
+.country-btn.open { border-color: #00bcd4; background: rgba(0,188,212,0.06); }
+.country-flag { font-size: 16px; line-height: 1; }
+.country-code { font-size: 12px; font-weight: 700; }
+.c-arrow { width: 12px; height: 12px; stroke: rgba(255,255,255,0.4); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.22s; flex-shrink: 0; }
+.country-btn.open .c-arrow { transform: rotate(180deg); }
+
+.country-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 999;
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 13px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+  width: 260px;
+  overflow: hidden;
+  animation: dropIn 0.18s ease;
+}
+.country-dropdown.show { display: block; }
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cs-wrap { padding: 10px 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.cs-input {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 8px 11px;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 12px;
+  outline: none;
+}
+.cs-input::placeholder { color: rgba(255,255,255,0.25); }
+.c-list { max-height: 220px; overflow-y: auto; padding: 6px 0; }
+.c-list::-webkit-scrollbar { width: 4px; }
+.c-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+.c-opt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; cursor: pointer; transition: background 0.15s;
+}
+.c-opt:hover { background: rgba(255,255,255,0.06); }
+.c-opt.active { background: rgba(0,188,212,0.12); }
+.c-opt-flag { font-size: 17px; flex-shrink: 0; }
+.c-opt-name { flex: 1; font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.8); }
+.c-opt-dial { font-size: 11.5px; font-weight: 700; color: rgba(255,255,255,0.35); }
+.c-noResult { padding: 16px 14px; font-size: 12px; color: rgba(255,255,255,0.25); text-align: center; }
+
+/* FILE UPLOAD */
+.upload-label { display: block; font-size: 10.5px; font-weight: 700; color: rgba(255,255,255,0.38); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 7px; }
+.upload-area {
+  position: relative; border: 1.5px dashed rgba(255,255,255,0.13);
+  border-radius: 12px; padding: 22px 18px; text-align: center;
+  cursor: pointer; background: rgba(255,255,255,0.02);
+  transition: border-color 0.22s, background 0.22s; margin-bottom: 13px;
+}
+.upload-area:hover,.upload-area.over { border-color: rgba(0,188,212,0.45); background: rgba(0,188,212,0.04); }
+.upload-area input[type=file] { display: none; }
+.upload-icon { width: 38px; height: 38px; margin: 0 auto 9px; background: rgba(255,255,255,0.05); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.upload-icon svg { width: 18px; height: 18px; stroke: rgba(255,255,255,0.38); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.upload-title { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.5); margin-bottom: 2px; }
+.upload-hint  { font-size: 11px; color: rgba(255,255,255,0.22); }
+.file-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; margin-bottom: 8px; }
+.file-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(0,188,212,0.1); border: 1px solid rgba(0,188,212,0.22); color: #ff6b6b; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; cursor: pointer; transition: background 0.18s; }
+.file-chip:hover { background: rgba(0,188,212,0.18); }
+.file-chip-name { text-decoration: underline; text-underline-offset: 2px; }
+.file-chip-remove { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; background: rgba(0,188,212,0.3); border-radius: 50%; font-size: 10px; font-style: normal; color: #fff; font-weight: 900; line-height: 1; transition: background 0.15s; flex-shrink: 0; }
+.file-chip-remove:hover { background: #00bcd4; }
+
+/* SEND METHOD STEP */
+.method-header { text-align: center; margin-bottom: 20px; }
+.method-header-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  margin: 0 auto 16px;
+  background: rgba(0,188,212,0.1); border: 1.5px solid rgba(0,188,212,0.22);
+  display: flex; align-items: center; justify-content: center;
+}
+.method-header-icon svg { width: 26px; height: 26px; stroke: #26c6da; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+.method-card {
+  border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 16px; padding: 22px 14px 18px;
+  cursor: pointer; text-align: center;
+  background: rgba(255,255,255,0.025);
+  transition: border-color 0.22s, background 0.22s, transform 0.22s, box-shadow 0.22s;
+  position: relative; user-select: none;
+}
+.method-card:hover { border-color: rgba(0,188,212,0.4); background: rgba(0,188,212,0.05); transform: translateY(-2px); }
+.method-card.selected { border-color: #00bcd4 !important; background: rgba(0,188,212,0.1) !important; box-shadow: 0 0 0 3px rgba(0,188,212,0.12); }
+.method-icon {
+  width: 46px; height: 46px; border-radius: 13px;
+  margin: 0 auto 11px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  transition: background 0.22s, border-color 0.22s;
+}
+.method-card.selected .method-icon { background: rgba(0,188,212,0.15); border-color: rgba(0,188,212,0.3); }
+.method-icon svg { width: 22px; height: 22px; fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.22s; }
+.method-card.selected .method-icon svg { stroke: #26c6da; }
+.method-name { font-size: 13.5px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.method-desc { font-size: 10.5px; color: rgba(255,255,255,0.32); line-height: 1.5; }
+.method-check {
+  position: absolute; top: 10px; right: 10px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: #00bcd4; display: none;
+  align-items: center; justify-content: center;
+}
+.method-card.selected .method-check { display: flex; }
+.method-check svg { width: 10px; height: 10px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+.dest-preview {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 12px 16px; margin-bottom: 22px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12.5px; color: rgba(255,255,255,0.4);
+}
+.dest-preview strong { color: rgba(255,255,255,0.8); }
+.dest-icon { width: 28px; height: 28px; background: rgba(0,188,212,0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dest-icon svg { width: 14px; height: 14px; stroke: #26c6da; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* OTP */
+.otp-info { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 13px 16px; font-size: 12.5px; color: rgba(255,255,255,0.4); margin-bottom: 22px; line-height: 1.6; }
+.otp-info strong { color: rgba(255,255,255,0.75); }
+.otp-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(0,188,212,0.1); border: 1px solid rgba(0,188,212,0.22);
+  color: #ff6b6b; font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: 20px; margin-top: 7px;
+}
+.otp-boxes { display: flex; gap: 9px; justify-content: center; margin-bottom: 18px; }
+.otp-boxes input {
+  width: 50px !important; height: 58px; text-align: center;
+  font-size: 21px; font-weight: 800; font-family: 'Montserrat', sans-serif;
+  border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.09) !important;
+  background: rgba(255,255,255,0.04) !important; color: #fff;
+  caret-color: #00bcd4; padding: 0 !important; outline: none; flex: none;
+}
+.otp-boxes input:focus { border-color: #00bcd4 !important; background: rgba(0,188,212,0.07) !important; }
+.otp-resend { text-align: center; font-size: 12px; color: rgba(255,255,255,0.3); margin-bottom: 20px; }
+.otp-resend button { background: none; border: none; color: #26c6da; font-family: 'Montserrat', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; margin-left: 3px; }
+.otp-resend button:disabled { color: rgba(255,255,255,0.22); cursor: default; }
+
+/* BUTTONS */
+.btn-main {
+  width: 100%; padding: 14px; background: #00bcd4; color: #fff;
+  border: none; border-radius: 12px; font-family: 'Montserrat', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  transition: background 0.22s, transform 0.22s, box-shadow 0.22s;
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px;
+}
+.btn-main:hover { background: #0097a7; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,188,212,0.38); }
+.btn-main:disabled { background: rgba(0,188,212,0.32); cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-main svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.btn-ghost {
+  width: 100%; padding: 12px; background: transparent;
+  color: rgba(255,255,255,0.4); border: 1.5px solid rgba(255,255,255,0.09);
+  border-radius: 12px; font-family: 'Montserrat', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: border-color 0.22s, color 0.22s; margin-top: 9px; display: block; width: 100%;
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.22); color: #fff; }
+
+.switch-line { text-align: center; font-size: 12.5px; color: rgba(255,255,255,0.28); padding: 18px 0 2px; }
+.switch-line span { color: #26c6da; font-weight: 700; cursor: pointer; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+.divider span { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.18); white-space: nowrap; }
+.divider::before,.divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+
+/* SUCCESS */
+.success-box { text-align: center; padding: 16px 0; }
+.success-ring { width: 68px; height: 68px; margin: 0 auto 20px; border-radius: 50%; background: rgba(0,188,212,0.1); border: 2px solid rgba(0,188,212,0.28); display: flex; align-items: center; justify-content: center; }
+.success-ring svg { width: 30px; height: 30px; stroke: #26c6da; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.success-title { font-family: 'Playfair Display', serif; font-size: 23px; font-weight: 900; color: #fff; margin-bottom: 8px; }
+.success-msg { font-size: 13px; color: rgba(255,255,255,0.38); margin-bottom: 26px; line-height: 1.65; }
+
+/* TOAST */
+.toast {
+  display: none; position: fixed; bottom: 26px; left: 50%;
+  transform: translateX(-50%); background: #1c1c1c; color: #fff;
+  padding: 13px 26px; border-radius: 50px; font-size: 13px; font-weight: 600;
+  z-index: 9999; box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  border-left: 4px solid #00bcd4; white-space: nowrap;
+}
+.toast.show { display: block; animation: tIn 0.28s ease; }
+@keyframes tIn { from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+@media(max-width:480px){
+  .step{padding:26px 20px}
+  .row2{grid-template-columns:1fr}
+  .otp-boxes input{width:42px !important;height:50px;font-size:18px}
+  .country-dropdown{width:240px}
+}
+/* ===== LIGHT MODE CLEAN ===== */
+[data-theme="light"] body {
+  background: #f4f6f9;
+  color: #111;
+}
+
+/* CARD */
+[data-theme="light"] .auth-card {
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* TITLES */
+[data-theme="light"] .step-title {
+  color: #111;
+  font-weight: 800;
+}
+
+[data-theme="light"] .step-sub {
+  color: rgba(0,0,0,0.65);
+}
+
+/* LABELS */
+[data-theme="light"] .field label {
+  color: rgba(0,0,0,0.85);
+  font-weight: 600;
+}
+
+/* INPUTS */
+[data-theme="light"] .field input {
+  background: #ffffff;
+  color: #111;
+  border: 1.5px solid rgba(0,0,0,0.25);
+  border-radius: 10px;
+  box-shadow: none;
+}
+
+[data-theme="light"] .field input::placeholder {
+  color: rgba(0,0,0,0.4);
+}
+
+[data-theme="light"] .field input:focus {
+  border-color: #00bcd4;
+  box-shadow: 0 0 0 2px rgba(0,188,212,0.15);
+}
+
+/* PHONE */
+[data-theme="light"] .country-btn {
+  background: #ffffff;
+  border: 1.5px solid rgba(0,0,0,0.25);
+  color: #111;
+}
+
+[data-theme="light"] .phone-row input[type=tel] {
+  background: #ffffff;
+  border: 1.5px solid rgba(0,0,0,0.25);
+}
+
+/* ROLE CARDS (client / agent) */
+[data-theme="light"] .role-card {
+  background: #ffffff;
+  border: 1.5px solid rgba(0,0,0,0.15);
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .role-card:hover {
+  border-color: #00bcd4;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+[data-theme="light"] .role-name {
+  color: #111;
+  font-weight: 700;
+}
+
+[data-theme="light"] .role-desc {
+  color: rgba(0,0,0,0.65);
+}
+
+/* ICON BOX */
+[data-theme="light"] .role-icon-box {
+  background: rgba(0,0,0,0.05);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .role-icon-box svg {
+  stroke: rgba(0,0,0,0.8);
+}
+
+/* BUTTON GHOST */
+[data-theme="light"] .btn-ghost {
+  color: rgba(0,0,0,0.75);
+  border: 1.5px solid rgba(0,0,0,0.25);
+}
+
+[data-theme="light"] .btn-ghost:hover {
+  color: #000;
+  border-color: rgba(0,0,0,0.5);
+}
+
+/* DIVIDER */
+[data-theme="light"] .divider span {
+  color: rgba(0,0,0,0.6);
+}
+
+[data-theme="light"] .divider::before,
+[data-theme="light"] .divider::after {
+  background: rgba(0,0,0,0.15);
+}
+
+/* LINKS */
+[data-theme="light"] .switch-line {
+  color: rgba(0,0,0,0.7);
+}
+
+[data-theme="light"] .back-link {
+  color: rgba(0,0,0,0.6);
+}
+
+[data-theme="light"] .back-link:hover {
+  color: #000;
+}
+
+/* THEME BUTTON */
+[data-theme="light"] #themeBtn {
+  border: 1px solid rgba(0,0,0,0.25);
+  color: #111;
+}
+
+/* OTP */
+[data-theme="light"] .otp-boxes input {
+  background: #ffffff !important;
+  color: #111 !important;
+  border: 1.5px solid rgba(0,0,0,0.25) !important;
+}
+
+/* METHOD NAME */
+[data-theme="light"] .method-name {
+  color: #111;
+}
+
+/* EXTRA: section spacing (باش يبان Register / Commerce) */
+[data-theme="light"] .step {
+  background: transparent;
+}
+/* ===== LIGHT MODE - كل ما هو inline style ===== */
+
+/* Avatar preview circle */
+[data-theme="light"] #agentAvatarPreview,
+[data-theme="light"] #clientAvatarPreview {
+  background: #e8f4f6 !important;
+  border: 1.5px dashed #00bcd4 !important;
+}
+
+/* Choose Photo button */
+[data-theme="light"] .sAgent label[style],
+[data-theme="light"] .sClient label[style] {
+  background: #f0f9fb !important;
+  border: 1.5px solid rgba(0,0,0,0.2) !important;
+  color: #111 !important;
+}
+
+/* Upload areas */
+[data-theme="light"] .upload-area {
+  background: #f0f9fb !important;
+  border: 1.5px dashed #00bcd4 !important;
+}
+
+[data-theme="light"] .upload-title {
+  color: rgba(0,0,0,0.6) !important;
+}
+
+[data-theme="light"] .upload-hint {
+  color: rgba(0,0,0,0.4) !important;
+}
+
+[data-theme="light"] .upload-icon {
+  background: rgba(0,188,212,0.1) !important;
+}
+
+[data-theme="light"] .upload-icon svg {
+  stroke: #00bcd4 !important;
+}
+
+[data-theme="light"] .upload-label {
+  color: rgba(0,0,0,0.85) !important;
+}
+
+/* Progress dots */
+[data-theme="light"] .progress-dot {
+  background: rgba(0,0,0,0.12) !important;
+}
+
+/* Destination preview box */
+[data-theme="light"] .dest-preview {
+  background: #f0f9fb !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: rgba(0,0,0,0.6) !important;
+}
+
+[data-theme="light"] .dest-preview strong {
+  color: #111 !important;
+}
+
+/* OTP info box */
+[data-theme="light"] .otp-info {
+  background: #f0f9fb !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: rgba(0,0,0,0.6) !important;
+}
+
+[data-theme="light"] .otp-info strong {
+  color: #111 !important;
+}
+
+/* OTP resend text */
+[data-theme="light"] .otp-resend {
+  color: rgba(0,0,0,0.5) !important;
+}
+
+/* Method cards */
+[data-theme="light"] .method-card {
+  background: #ffffff !important;
+  border: 1.5px solid rgba(0,0,0,0.15) !important;
+}
+
+[data-theme="light"] .method-icon {
+  background: rgba(0,0,0,0.05) !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+[data-theme="light"] .method-icon svg {
+  stroke: rgba(0,0,0,0.6) !important;
+}
+
+[data-theme="light"] .method-desc {
+  color: rgba(0,0,0,0.55) !important;
+}
+
+/* Method header icon */
+[data-theme="light"] .method-header-icon {
+  background: rgba(0,188,212,0.1) !important;
+  border-color: rgba(0,188,212,0.3) !important;
+}
+
+/* Success box */
+[data-theme="light"] .success-title {
+  color: #111 !important;
+}
+
+[data-theme="light"] .success-msg {
+  color: rgba(0,0,0,0.55) !important;
+}
+
+/* Country dropdown */
+[data-theme="light"] .country-dropdown {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.12) !important;
+}
+
+[data-theme="light"] .cs-input {
+  background: #f0f0f0 !important;
+  border: 1px solid rgba(0,0,0,0.15) !important;
+  color: #111 !important;
+}
+
+[data-theme="light"] .c-opt-name {
+  color: rgba(0,0,0,0.8) !important;
+}
+
+[data-theme="light"] .c-opt-dial {
+  color: rgba(0,0,0,0.45) !important;
+}
+
+[data-theme="light"] .c-opt:hover {
+  background: rgba(0,188,212,0.07) !important;
+}
+
+/* Switch line */
+[data-theme="light"] .switch-line span {
+  color: #0097a7 !important;
+}
+
+/* Forgot password link */
+[data-theme="light"] #sLogin a {
+  color: rgba(0,0,0,0.5) !important;
+}
+
+/* Logo */
+[data-theme="light"] .logo-2dz {
+  color: #111 !important;
+}
+
+/* Background body glow */
+[data-theme="light"] body::before {
+  display: none;
+}
+</style>
+<script src="theme.js"></script>
+</head>
+<body>
+<button id="themeBtn" onclick="toggleTheme()" 
+  style="position:fixed;top:20px;right:20px;z-index:200;
+  background:none;border:1px solid rgba(255,255,255,0.2);
+  color:#fff;border-radius:50%;width:36px;height:36px;
+  cursor:pointer;font-size:16px;">🌙</button>
+<a href="index.php" class="back-link">
+  <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  Back to China2DZ
+</a>
+
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <a href="index.php"><span class="logo-china">China</span><span class="logo-2dz">2DZ</span></a>
+  </div>
+  <div class="auth-card">
+
+    <!-- STEP 1: ROLE -->
+    <div class="step active" id="sRole">
+      <div class="step-title">Create Account</div>
+      <div class="step-sub">Who are you? Select your account type to get started.</div>
+      <div class="role-grid">
+        <div class="role-card" id="cardAgent" onclick="pickRole('agent')">
+          <div class="role-icon-box">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path><path d="M2 12h20"></path></svg>
+          </div>
+          <div class="role-name">Agent</div>
+          <div class="role-desc">Car dealer or import agency representative</div>
+        </div>
+        <div class="role-card" id="cardClient" onclick="pickRole('client')">
+          <div class="role-icon-box">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"></path></svg>
+          </div>
+          <div class="role-name">Client</div>
+          <div class="role-desc">Looking to buy or explore Chinese cars</div>
+        </div>
+      </div>
+      <button class="btn-main" id="roleContinueBtn" disabled onclick="roleNext()">
+        Continue
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="divider"><span>already have an account?</span></div>
+      <button class="btn-ghost" onclick="go('sLogin')">Sign In</button>
+    </div>
+
+    <!-- STEP 2A: AGENT FORM -->
+    <div class="step" id="sAgent">
+      <div class="progress">
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <div class="step-title">Agent Details</div>
+      <div class="step-sub">Enter your information and upload your documents.</div>
+      <!-- صورة البروفايل للـ agent -->
+<div style="margin-bottom:13px;">
+  <label class="upload-label">Profile Photo (optional)</label>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div id="agentAvatarPreview" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.06);border:1.5px dashed rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;">👤</div>
+    <label style="cursor:pointer;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 16px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);transition:all .2s;"
+           onmouseover="this.style.borderColor='rgba(0,188,212,0.5)'"
+           onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+      Choose Photo
+      <input type="file" id="agentPhoto" accept="image/*" style="display:none;" onchange="previewAgentPhoto(this)">
+    </label>
+  </div>
+</div>
+      <div class="row2">
+        <div class="field" id="fAgentFirst">
+          <label>First Name</label>
+          <input type="text" id="agentFirst" placeholder="Mohamed">
+          <div class="err-msg">This field is required</div>
+        </div>
+        <div class="field" id="fAgentLast">
+          <label>Last Name</label>
+          <input type="text" id="agentLast" placeholder="Bensalem">
+          <div class="err-msg">This field is required</div>
+        </div>
+      </div>
+      <div class="field" id="fAgentEmail">
+        <label>Email Address</label>
+        <input type="email" id="agentEmail" placeholder="agent@gmail.com">
+        <div class="err-msg">Enter a valid email address</div>
+      </div>
+      <div class="field" id="fAgentPhone">
+        <label>Phone Number</label>
+        <div class="phone-row">
+          <div class="country-selector" id="selAgent">
+            <div class="country-btn" id="btnAgent" onclick="toggleDrop('selAgent')">
+              <span class="country-flag" id="flagAgent">🇩🇿</span>
+              <span class="country-code" id="dialAgent">+213</span>
+              <svg class="c-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="country-dropdown" id="dropAgent">
+              <div class="cs-wrap">
+                <input class="cs-input" type="text" placeholder="Search country..." oninput="filterList(this,'listAgent','selAgent')" autocomplete="off">
+              </div>
+              <div class="c-list" id="listAgent"></div>
+            </div>
+          </div>
+          <input type="tel" id="agentPhone" placeholder="07XXXXXXXX" oninput="onPhoneType('agentPhone','selAgent','fAgentPhone')">
+        </div>
+        <div class="err-msg" id="agentPhoneErr">Phone number doesn't match selected country</div>
+      </div>
+
+      <span class="upload-label">Carte d'identité nationale</span>
+      <input type="file" id="idFile" accept=".pdf,.jpg,.jpeg,.png" onchange="showFiles('idFile','idChips')" style="display:none;">
+      <div class="upload-area" id="idArea" onclick="document.getElementById('idFile').click()">
+        <div class="upload-icon"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M8 10h.01M8 14h8M12 10h4"/></svg></div>
+        <div class="upload-title">Click or drag to upload</div>
+        <div class="upload-hint">PDF, JPG or PNG — max 5 MB</div>
+      </div>
+      <div class="file-chips" id="idChips"></div>
+      <span class="upload-label">Registre de commerce</span>
+      <input type="file" id="rcFile" accept=".pdf,.jpg,.jpeg,.png" onchange="showFiles('rcFile','rcChips')" style="display:none;">
+      <div class="upload-area" id="rcArea" onclick="document.getElementById('rcFile').click()">
+        <div class="upload-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <div class="upload-title">Click or drag to upload</div>
+        <div class="upload-hint">PDF, JPG or PNG — max 5 MB</div>
+      </div>
+      <div class="file-chips" id="rcChips"></div>
+      <div class="field">
+    <label>National ID Number</label>
+    <input type="text" id="agentNationalId" placeholder="123456789">
+    <div class="err-msg">This field is required</div>
+</div>
+
+<div class="field">
+    <label>Password</label>
+    <input type="password" id="agentPass" placeholder="••••••••">
+    <div class="err-msg">Password is required</div>
+</div>
+
+<div class="field">
+    <label>Full Name on ID Card</label>
+    <input type="text" id="agentIdCardName" placeholder="ines boumaza">
+    <div class="err-msg">This field is required</div>
+</div>
+
+<div class="field">
+    <label>Company Name</label>
+    <input type="text" id="agentCompany" placeholder="Société XYZ">
+    <div class="err-msg">This field is required</div>
+</div>
+
+<div class="field">
+    <label>RC Number</label>
+    <input type="text" id="agentRcNumber" placeholder="12/00-0000000">
+    <div class="err-msg">This field is required</div>
+</div>
+
+<div class="field">
+    <label>RC Owner Name</label>
+    <input type="text" id="agentRcOwner" placeholder="Mohamed Bensalem">
+    <div class="err-msg">This field is required</div>
+</div>
+      <button class="btn-main" onclick="agentNext()" style="margin-top:10px;">
+        Choose Verification Method
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-ghost" onclick="go('sRole')">Back</button>
+    </div>
+
+    <!-- STEP 2B: CLIENT FORM -->
+    <div class="step" id="sClient">
+      <div class="progress">
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+        <div class="progress-dot"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <div class="step-title">Client Details</div>
+      <div class="step-sub">Fill in your details to create your account.</div>
+      <!-- اسم العميل -->
+<div class="field" id="fClientName">
+  <label>First Name</label>
+  <input type="text" id="clientName" placeholder="Mohamed">
+  <div class="err-msg">Name is required</div>
+</div>
+
+<div class="field" id="fClientLastName">
+  <label>Last Name</label>
+  <input type="text" id="clientLastName" placeholder="Benali">
+  <div class="err-msg">Last name is required</div>
+</div>
+
+<!-- صورة الملف الشخصي -->
+<div style="margin-bottom:13px;">
+  <label class="upload-label">Profile Photo (optional)</label>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div id="clientAvatarPreview" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.06);border:1.5px dashed rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;">👤</div>
+    <label style="cursor:pointer;background:rgba(255,255,255,0.05);border:1.5px solid rgba(255,255,255,0.1);border-radius:10px;padding:9px 16px;font-size:12px;font-weight:600;color:rgba(255,255,255,0.6);transition:all .2s;" 
+           onmouseover="this.style.borderColor='rgba(0,188,212,0.5)'" 
+           onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">
+      Choose Photo
+      <input type="file" id="clientPhoto" accept="image/*" style="display:none;" onchange="previewClientPhoto(this)">
+    </label>
+  </div>
+</div>
+      <div class="field" id="fClientEmail">
+        <label>Email Address</label>
+        <input type="email" id="clientEmail" placeholder="your@gmail.com">
+        <div class="err-msg">Enter a valid email address</div>
+      </div>
+      <div class="field" id="fClientPhone">
+        <label>Phone Number</label>
+        <div class="phone-row">
+          <div class="country-selector" id="selClient">
+            <div class="country-btn" id="btnClient" onclick="toggleDrop('selClient')">
+              <span class="country-flag" id="flagClient">🇩🇿</span>
+              <span class="country-code" id="dialClient">+213</span>
+              <svg class="c-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="country-dropdown" id="dropClient">
+              <div class="cs-wrap">
+                <input class="cs-input" type="text" placeholder="Search country..." oninput="filterList(this,'listClient','selClient')" autocomplete="off">
+              </div>
+              <div class="c-list" id="listClient"></div>
+            </div>
+          </div>
+          <input type="tel" id="clientPhone" placeholder="07XXXXXXXX" oninput="onPhoneType('clientPhone','selClient','fClientPhone')">
+        </div>
+        <div class="err-msg" id="clientPhoneErr">Phone number doesn't match selected country</div>
+      </div>
+      <div class="field" id="fClientPass">
+  <label>Password</label>
+  <input type="password" id="clientPass" placeholder="••••••••">
+  <div class="err-msg">Password is required</div>
+</div>
+      <button class="btn-main" id="clientNextBtn" onclick="clientNext()">
+        Choose Verification Method
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-ghost" onclick="go('sRole')">Back</button>
+    </div>
+
+    <!-- STEP 3: CHOOSE SEND METHOD -->
+    <div class="step" id="sSendMethod">
+      <div class="progress">
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <div class="method-header">
+        <div class="method-header-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="step-title" style="margin-bottom:5px;">How to send your code?</div>
+        <div class="step-sub" style="margin-bottom:0;">Choose how you'd like to receive your verification code.</div>
+      </div>
+
+      <div class="dest-preview" style="margin-top:20px;">
+        <div class="dest-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.128.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.572 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div>Sending to: <strong id="methodDestPhone">...</strong></div>
+      </div>
+
+      <div class="method-grid">
+        <div class="method-card" id="mcWhatsApp" style="opacity:0.35;cursor:not-allowed;pointer-events:none;">
+          <div class="method-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="method-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </div>
+          <div class="method-name">WhatsApp</div>
+          <div class="method-desc">Receive code via WhatsApp message</div>
+        </div>
+        <div class="method-card" id="mcEmail" onclick="pickMethod('email')">
+          <div class="method-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="method-icon">
+            <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </div>
+          <div class="method-name">Email</div>
+          <div class="method-desc">Receive code to your email address</div>
+        </div>
+      </div>
+
+      <button class="btn-main" id="methodSendBtn" disabled onclick="confirmMethod()">
+        Send Verification Code
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-ghost" id="methodBackBtn">Back</button>
+    </div>
+
+    <!-- STEP 4: OTP -->
+    <div class="step" id="sOtp">
+      <div class="progress">
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+        <div class="progress-dot on"></div>
+      </div>
+      <div class="step-title">Verification</div>
+      <div class="step-sub">Enter the 6-digit code we sent you.</div>
+      <div class="otp-info">
+        Code sent to: <strong id="otpDest">...</strong><br>
+        <span class="otp-badge" id="otpBadge">via WhatsApp</span>
+      </div>
+      <div class="otp-boxes">
+        <input type="text" maxlength="1" id="o1" inputmode="numeric">
+        <input type="text" maxlength="1" id="o2" inputmode="numeric">
+        <input type="text" maxlength="1" id="o3" inputmode="numeric">
+        <input type="text" maxlength="1" id="o4" inputmode="numeric">
+        <input type="text" maxlength="1" id="o5" inputmode="numeric">
+        <input type="text" maxlength="1" id="o6" inputmode="numeric">
+      </div>
+      <div class="otp-resend">
+        Didn't receive it?
+        <button id="resendBtn" onclick="resendOtp()">Resend</button>
+        <span id="resendInfo" style="display:none;"> in <span id="resendSec">60</span>s</span>
+      </div>
+      <button class="btn-main" onclick="verifyOtp()">
+        Verify &amp; Create Account
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <button class="btn-ghost" onclick="go('sSendMethod')">Back</button>
+    </div>
+
+    <!-- STEP 5: SUCCESS -->
+    <div class="step" id="sSuccess">
+      <div class="success-box">
+        <div class="success-ring">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="success-title">Account Created!</div>
+        <div class="success-msg" id="successTxt">Your account is ready.</div>
+        <button class="btn-main" onclick="window.location.href=localStorage.getItem('userRole')==='agent'?(localStorage.getItem('userStatus')==='approved'?'agents.php':'agent_pending.php'):'index.php'"></button>
+          Start Exploring
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- SIGN IN -->
+    <div class="step" id="sLogin">
+      <div class="step-title">Welcome Back</div>
+      <div class="step-sub">Sign in to your China2DZ account.</div>
+      <div class="field" id="fLoginEmail">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="your@email.com">
+        <div class="err-msg">Enter a valid email address</div>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••">
+      </div>
+      <a href="forgot_password.html" style="display:block;font-size:12px;color:rgba(255,255,255,0.3);text-align:right;margin:-4px 0 18px;font-weight:600;text-decoration:none;">Forgot Password?</a>
+      <button class="btn-main" id="loginBtn">
+        Sign In
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="switch-line">Don't have an account? <span onclick="go('sRole')">Create Account</span></div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toastEl" class="toast"></div>
+
+<script>
+(function() {
+
+  // ── STATE ──────────────────────────────────────────
+  var role        = null;
+  var sendMethod  = null;
+  var timerHandle = null;
+  var currentUserId = null;
+  var _phone      = '';
+  var _email      = '';
+  var _backScreen = 'sClient';
+  var storedFiles={idFile: [], rcFile: [] };
+  var FAKE_DOMAINS = ['mailinator.com','guerrillamail.com','10minutemail.com',
+    'trashmail.com','yopmail.com','tempmail.com','throwam.com',
+    'dispostable.com','fakeinbox.com','sharklasers.com'];
+
+  // ── COUNTRIES ─────────────────────────────────────
+  var COUNTRIES = [
+    {flag:'🇩🇿',name:'Algeria',      dial:'+213',px:['05','06','07']},
+    {flag:'🇲🇦',name:'Morocco',      dial:'+212',px:['06','07']},
+    {flag:'🇹🇳',name:'Tunisia',      dial:'+216',px:['2','3','4','5','7','9']},
+    {flag:'🇱🇾',name:'Libya',        dial:'+218',px:['09','091','092','094']},
+    {flag:'🇪🇬',name:'Egypt',        dial:'+20', px:['010','011','012','015']},
+    {flag:'🇸🇦',name:'Saudi Arabia', dial:'+966',px:['05']},
+    {flag:'🇦🇪',name:'UAE',          dial:'+971',px:['05']},
+    {flag:'🇶🇦',name:'Qatar',        dial:'+974',px:['3','5','6','7']},
+    {flag:'🇰🇼',name:'Kuwait',       dial:'+965',px:['5','6','9']},
+    {flag:'🇴🇲',name:'Oman',         dial:'+968',px:['7','9']},
+    {flag:'🇧🇭',name:'Bahrain',      dial:'+973',px:['3','6']},
+    {flag:'🇮🇶',name:'Iraq',         dial:'+964',px:['07']},
+    {flag:'🇯🇴',name:'Jordan',       dial:'+962',px:['07']},
+    {flag:'🇱🇧',name:'Lebanon',      dial:'+961',px:['03','07','70','71','76','78','79']},
+    {flag:'🇸🇾',name:'Syria',        dial:'+963',px:['09']},
+    {flag:'🇾🇪',name:'Yemen',        dial:'+967',px:['7']},
+    {flag:'🇸🇩',name:'Sudan',        dial:'+249',px:['09','012']},
+    {flag:'🇲🇷',name:'Mauritania',   dial:'+222',px:['2','3','4']},
+    {flag:'🇫🇷',name:'France',       dial:'+33', px:['06','07']},
+    {flag:'🇩🇪',name:'Germany',      dial:'+49', px:['015','016','017']},
+    {flag:'🇬🇧',name:'UK',           dial:'+44', px:['07']},
+    {flag:'🇪🇸',name:'Spain',        dial:'+34', px:['6','7']},
+    {flag:'🇮🇹',name:'Italy',        dial:'+39', px:['3']},
+    {flag:'🇨🇳',name:'China',        dial:'+86', px:['13','14','15','16','17','18','19']},
+    {flag:'🇹🇷',name:'Turkey',       dial:'+90', px:['05']},
+    {flag:'🇺🇸',name:'USA',          dial:'+1',  px:['2','3','4','5','6','7','8','9']},
+    {flag:'🇧🇷',name:'Brazil',       dial:'+55', px:['11','21','31','41','51','61','71','81','91']},
+    {flag:'🇮🇳',name:'India',        dial:'+91', px:['6','7','8','9']},
+    {flag:'🇵🇰',name:'Pakistan',     dial:'+92', px:['03']},
+    {flag:'🇳🇬',name:'Nigeria',      dial:'+234',px:['07','08','09']},
+  ];
+
+  var chosen = { selAgent: COUNTRIES[0], selClient: COUNTRIES[0] };
+
+  // ── NAV ───────────────────────────────────────────
+  window.go = function(id) {
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+  };
+
+  // ── ROLE ──────────────────────────────────────────
+  window.pickRole = function(r) {
+    role = r;
+    document.getElementById('cardAgent').classList.toggle('selected', r === 'agent');
+    document.getElementById('cardClient').classList.toggle('selected', r === 'client');
+    document.getElementById('roleContinueBtn').disabled = false;
+  };
+  window.roleNext = function() {
+    if (!role) return;
+    go(role === 'agent' ? 'sAgent' : 'sClient');
+  };
+
+  // ── COUNTRY DROPDOWN ──────────────────────────────
+  window.toggleDrop = function(selId) {
+    var dropId = selId.replace('sel','drop').replace('Sel','drop');
+    // map ids correctly
+    var dropEl = selId === 'selAgent' ? document.getElementById('dropAgent') : document.getElementById('dropClient');
+    var btnEl  = selId === 'selAgent' ? document.getElementById('btnAgent')  : document.getElementById('btnClient');
+    var listId = selId === 'selAgent' ? 'listAgent' : 'listClient';
+    var isOpen = dropEl.classList.contains('show');
+    closeAllDrops();
+    if (!isOpen) {
+      dropEl.classList.add('show');
+      btnEl.classList.add('open');
+      renderList(listId, selId, '');
+      setTimeout(function(){ dropEl.querySelector('.cs-input').focus(); }, 50);
+    }
+  };
+
+  function closeAllDrops() {
+    document.querySelectorAll('.country-dropdown').forEach(function(d){ d.classList.remove('show'); });
+    document.querySelectorAll('.country-btn').forEach(function(b){ b.classList.remove('open'); });
+  }
+
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.country-selector')) closeAllDrops();
+  });
+
+  function renderList(listId, selId, q) {
+    var el = document.getElementById(listId);
+    el.innerHTML = '';
+    var list = q ? COUNTRIES.filter(function(c){
+      return c.name.toLowerCase().indexOf(q.toLowerCase()) > -1 || c.dial.indexOf(q) > -1;
+    }) : COUNTRIES;
+    if (!list.length) { el.innerHTML = '<div class="c-noResult">No country found</div>'; return; }
+    list.forEach(function(c) {
+      var d = document.createElement('div');
+      d.className = 'c-opt' + (chosen[selId] && chosen[selId].dial === c.dial ? ' active' : '');
+      d.innerHTML = '<span class="c-opt-flag">'+c.flag+'</span><span class="c-opt-name">'+c.name+'</span><span class="c-opt-dial">'+c.dial+'</span>';
+      d.onclick = function(){ selectCountry(selId, c); };
+      el.appendChild(d);
+    });
+  }
+
+  window.filterList = function(input, listId, selId) {
+    renderList(listId, selId, input.value);
+  };
+
+  function selectCountry(selId, c) {
+    chosen[selId] = c;
+    var pre = selId === 'selAgent' ? 'Agent' : 'Client';
+    document.getElementById('flag'+pre).textContent = c.flag;
+    document.getElementById('dial'+pre).textContent = c.dial;
+    var phoneEl = document.getElementById(pre.toLowerCase()+'Phone');
+    phoneEl.placeholder = c.px[0] + 'XXXXXXXX';
+    closeAllDrops();
+    if (phoneEl.value) onPhoneType(pre.toLowerCase()+'Phone', selId, 'f'+pre+'Phone');
+  }
+
+  // ── PHONE AUTO-DETECT ─────────────────────────────
+  window.onPhoneType = function(phoneId, selId, fieldId) {
+    var val = document.getElementById(phoneId).value.replace(/[\s\-]/g,'');
+    if (!val) return;
+    var best = null, bestLen = 0;
+    COUNTRIES.forEach(function(c) {
+      c.px.forEach(function(p) {
+        if (val.startsWith(p) && p.length > bestLen) { bestLen = p.length; best = c; }
+      });
+    });
+    if (best && best.dial !== chosen[selId].dial) {
+      selectCountry(selId, best);
+      toast('Auto-detected: ' + best.name + ' ' + best.dial);
+    }
+    clrErr(fieldId);
+  };
+
+  // ── VALIDATE ──────────────────────────────────────
+  function validateEmail(e) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) return 'Enter a valid email (e.g. name@domain.com)';
+    if (FAKE_DOMAINS.indexOf(e.split('@')[1].toLowerCase()) > -1) return 'Disposable emails not allowed';
+    return null;
+  }
+  function validatePhone(phone, selId) {
+    var d = phone.replace(/[\s\-]/g,'');
+    if (!d) return 'Phone number is required';
+    if (d.length < 7 || d.length > 13) return 'Invalid phone number length';
+    var c = chosen[selId];
+    if (!c.px.some(function(p){ return d.startsWith(p); }))
+      return 'For ' + c.name + ' (' + c.dial + ') number must start with: ' + c.px.join(', ');
+    return null;
+  }
+  function setErr(id, msg) {
+    var f = document.getElementById(id);
+    if (!f) return;
+    f.classList.add('has-error');
+    var em = f.querySelector('.err-msg');
+    if (em && msg) em.textContent = msg;
+  }
+  function clrErr(id) {
+    var f = document.getElementById(id);
+    if (f) f.classList.remove('has-error');
+  }
+
+  // ── AGENT NEXT ────────────────────────────────────
+  window.agentNext = function() {
+    console.log('agentFirst el:', document.getElementById('agentFirst'));
+    var first = document.getElementById('agentFirst').value.trim();
+    var last  = document.getElementById('agentLast').value.trim();
+    var email = document.getElementById('agentEmail').value.trim();
+    var phone = document.getElementById('agentPhone').value.trim();
+    var idF   = document.getElementById('idFile');
+    var rcF   = document.getElementById('rcFile');
+    var ok = true;
+    ['fAgentFirst','fAgentLast','fAgentEmail','fAgentPhone'].forEach(clrErr);
+    if (!first) { setErr('fAgentFirst','This field is required'); ok=false; }
+    if (!last)  { setErr('fAgentLast', 'This field is required'); ok=false; }
+    var ee = validateEmail(email);
+    if (ee) { setErr('fAgentEmail', ee); ok=false; }
+    var pe = validatePhone(phone, 'selAgent');
+    if (pe) { setErr('fAgentPhone', pe); ok=false; }
+    if (!storedFiles['idFile'].length) { toast("Please upload your Carte d'identité"); ok=false; }
+    else if (!storedFiles['rcFile'].length) { toast('Please upload your Registre de commerce'); ok=false; }
+    if (!ok) return;
+    _phone = chosen['selAgent'].dial + ' ' + phone.replace(/[\s\-]/g,'');
+    _email = email;
+    _backScreen = 'sAgent';
+    var role ='agent';
+    console.log('phone:',_phone, 'email:', _email, 'role:')
+    fetch('register.php', {
+  method: 'POST',
+  body: (function(){
+    var fd = new FormData();
+    fd.append('role', role);
+    fd.append('first_name', document.getElementById('agentFirst').value);
+    fd.append('last_name', document.getElementById('agentLast').value);
+    fd.append('email', email);
+    fd.append('phone', _phone);
+    fd.append('password', document.getElementById('agentPass').value);
+    fd.append('national_id', document.getElementById('agentNationalId').value);
+    fd.append('id_card_name', document.getElementById('agentIdCardName').value);
+    fd.append('company_name', document.getElementById('agentCompany').value);
+    fd.append('rc_number', document.getElementById('agentRcNumber').value);
+    fd.append('rc_owner_name', document.getElementById('agentRcOwner').value);
+    if(storedFiles['idFile'] && storedFiles['idFile'][0]) fd.append('id_card_file', storedFiles['idFile'][0]);
+    if(storedFiles['rcFile'] && storedFiles['rcFile'][0]) fd.append('rc_file', storedFiles['rcFile'][0]);
+    var agentPhoto = document.getElementById('agentPhoto');
+if (agentPhoto && agentPhoto.files[0]) fd.append('profile_photo', agentPhoto.files[0]);
+    return fd;
+  })()
+})
+.then(function(r){ return r.json(); })
+.then(function(data) {
+  if (data.success) {
+    currentUserId = data.user_id;
+    openMethodScreen();
+    localStorage.setItem('userStatus', 'pending');
+    localStorage.setItem('userRole', 'agent');
+    localStorage.setItem('userId', data.user_id);
+  } else {
+    toast(data.error || 'Registration failed');
+  }
+})
+.catch(function(){toast('Connection error'); });
+  };
+
+  // ── CLIENT NEXT ───────────────────────────────────
+  window.clientNext = function(){
+  var name  = document.getElementById('clientName').value.trim();
+  var lastName = document.getElementById('clientLastName').value.trim();
+  var email = document.getElementById('clientEmail').value.trim();
+  var phone = document.getElementById('clientPhone').value.trim();
+  var pass  = document.getElementById('clientPass').value.trim();
+  var ok = true;
+['fClientName','fClientEmail','fClientPhone','fClientPass'].forEach(clrErr);
+if (!name) { setErr('fClientName','Name is required'); ok=false; }
+var ee = validateEmail(email);
+if (ee) { setErr('fClientEmail', ee); ok=false; }
+  var pe = validatePhone(phone, 'selClient');
+  if (pe) { setErr('fClientPhone', pe); ok=false; }
+  if (!pass) { setErr('fClientPass','Password is required'); ok=false; }
+  if (!ok) return;
+  _phone = chosen['selClient'].dial + ' ' + phone.replace(/[\s\-]/g,'');
+  _email = email;
+  _backScreen = 'sClient';
+  fetch('register.php', {
+    method: 'POST',
+    body: (function(){
+      var fd = new FormData();
+      fd.append('role', role);
+      fd.append('first_name', name);
+      fd.append('last_name', lastName);
+      fd.append('email', email);
+      fd.append('phone', _phone);
+      fd.append('password', pass);
+      var photo = document.getElementById('clientPhoto');
+      if (photo && photo.files[0]) fd.append('profile_photo', photo.files[0]);
+      return fd;
+    })()
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+      currentUserId = data.user_id;
+      localStorage.setItem('userId', data.user_id);
+      openMethodScreen();
+    } else {
+      toast(data.error || 'Registration failed');
+    }
+  })
+  .catch(function(){ 
+  toast('Connection error');
+  var btn = document.getElementById('clientNextBtn'); 
+  if (btn) btn.disabled=false;
+});
+};
+
+  // ── SEND METHOD SCREEN ────────────────────────────
+  function openMethodScreen() {
+    sendMethod = null;
+    document.getElementById('mcWhatsApp').classList.remove('selected');
+    document.getElementById('mcEmail').classList.remove('selected');
+    document.getElementById('methodSendBtn').disabled = true;
+    document.getElementById('methodDestPhone').textContent = _phone;
+    document.getElementById('methodBackBtn').onclick = function(){ go(_backScreen); };
+    go('sSendMethod');
+  }
+
+  window.pickMethod = function(m) {
+    if (m === 'whatsapp') return;
+    sendMethod = m;
+    document.getElementById('mcWhatsApp').classList.remove('selected');
+    document.getElementById('mcEmail').classList.toggle('selected', m === 'email');
+    document.getElementById('methodSendBtn').disabled = false;
+  };
+
+  window.confirmMethod = function() {
+
+  if (!sendMethod) return;
+
+  var dest = sendMethod === 'email' ? _email : _phone;
+
+  // 🔥 إرسال الكود
+  fetch('send_otp.php', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      user_id: currentUserId || localStorage.getItem('userId'),
+      method: sendMethod,
+      destination: dest
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(data) {
+    if (data.success) {
+
+      document.getElementById('otpDest').textContent = dest;
+      document.getElementById('otpBadge').textContent =
+        sendMethod === 'whatsapp' ? '📱 via WhatsApp' : '✉️ via Email';
+
+      clearOtp();
+      go('sOtp');
+      startTimer();
+      setTimeout(function(){ document.getElementById('o1').focus(); }, 300);
+
+    } else {
+      toast(data.error || 'Failed to send code');
+    }
+  })
+  .catch(function() {
+    toast('Connection error while sending code');
+  });
+};
+
+  // ── OTP ───────────────────────────────────────────
+  var OTPIDS = ['o1','o2','o3','o4','o5','o6'];
+  OTPIDS.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', function(){
+      this.value = this.value.replace(/\D/g,'').slice(-1);
+      if (this.value && i < 5) document.getElementById(OTPIDS[i+1]).focus();
+    });
+    el.addEventListener('keydown', function(e){
+      if (e.key==='Backspace' && !this.value && i>0) document.getElementById(OTPIDS[i-1]).focus();
+    });
+    el.addEventListener('paste', function(e){
+      e.preventDefault();
+      var t=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);
+      t.split('').forEach(function(ch,j){ var b=document.getElementById(OTPIDS[j]); if(b) b.value=ch; });
+      var last=document.getElementById(OTPIDS[Math.min(t.length,5)]);
+      if(last) last.focus();
+    });
+  });
+  function clearOtp(){ OTPIDS.forEach(function(id){ document.getElementById(id).value=''; }); }
+  function getOtp(){ return OTPIDS.map(function(id){ return document.getElementById(id).value; }).join(''); }
+
+  window.verifyOtp = function() {
+    var code = getOtp();
+    if (code.length < 6) { toast('Enter the complete 6-digit code'); return; }
+    fetch('verify_otp.php', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({ user_id: currentUserId || localStorage.getItem('userId'), code: code })
+})
+.then(function(r){ return r.json(); })
+.then(function(data) {
+  if (data.success) {
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('userRole', data.role);
+    localStorage.setItem('c2dz_token', data.token);
+    localStorage.setItem('c2dz_user', JSON.stringify({
+    id: data.user_id,
+    role: data.role,
+    full_name: data.full_name || '',
+    first_name: data.first_name || '',
+    last_name: data.last_name || '',
+    profile_photo: data.profile_photo || null,
+    agent_status: data.agent_status || null,
+email: data.email || ''
+}));
+    setTimeout(function(){
+    if (data.role === 'admin') {
+        window.location.href = 'admin.php';
+    } else if (data.role === 'agent') {
+        if (data.status === 'pending' || data.status === 'rejected') {
+            window.location.href = 'agent_pending.php';
+        } else {
+            window.location.href = 'index.php';
+        }
+    } else {
+        window.location.href = 'index.php';
+    }
+}, 100);
+  } else {
+    toast(data.error || 'Invalid code');
+    clearOtp();
+    document.getElementById('o1').focus();
+  }
+})
+.catch(function(err){ 
+  toast('Connection error: ' + err.message); 
+});
+  };
+  // ── TIMER ─────────────────────────────────────────
+  function startTimer() {
+    var btn=document.getElementById('resendBtn'),info=document.getElementById('resendInfo'),sec=document.getElementById('resendSec'),t=60;
+    btn.disabled=true; info.style.display='inline'; sec.textContent=t;
+    clearInterval(timerHandle);
+    timerHandle=setInterval(function(){ t--; sec.textContent=t; if(t<=0){clearInterval(timerHandle);btn.disabled=false;info.style.display='none';} },1000);
+  }
+  window.resendOtp = function() {
+    toast('New code sent via ' + (sendMethod==='whatsapp'?'WhatsApp':'Email'));
+    clearOtp(); startTimer(); setTimeout(function(){document.getElementById('o1').focus();},200);
+  };
+
+  // ── FILE CHIPS ────────────────────────────────────
+
+  function renderChips(inputId, chipsId) {
+    var box = document.getElementById(chipsId);
+    box.innerHTML = '';
+    storedFiles[inputId].forEach(function(f, idx) {
+      var c = document.createElement('span');
+      c.className = 'file-chip';
+
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'file-chip-name';
+      nameSpan.textContent = String.fromCodePoint(0x1F4C4) + ' ' + f.name;
+      nameSpan.onclick = function(e) {
+        e.stopPropagation();
+        var url = URL.createObjectURL(f);
+        var isImage = f.type.startsWith('image/');
+        var isPdf = f.type === 'application/pdf';
+        if (isImage) {
+          var modal = document.getElementById('filePreviewModal');
+          var img = document.getElementById('filePreviewImg');
+          var pdfFrame = document.getElementById('filePreviewPdf');
+          img.src = url;
+          img.style.display = 'block';
+          pdfFrame.style.display = 'none';
+          modal.style.display = 'flex';
+        } else if (isPdf) {
+          var modal = document.getElementById('filePreviewModal');
+          var img = document.getElementById('filePreviewImg');
+          var pdfFrame = document.getElementById('filePreviewPdf');
+          pdfFrame.src = url;
+          pdfFrame.style.display = 'block';
+          img.style.display = 'none';
+          modal.style.display = 'flex';
+        } else {
+          var a = document.createElement('a');
+          a.href = url; a.download = f.name; a.click();
+        }
+      };
+
+      var removeBtn = document.createElement('span');
+      removeBtn.className = 'file-chip-remove';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.onclick = function(e) {
+        e.stopPropagation();
+        storedFiles[inputId].splice(idx, 1);
+        renderChips(inputId, chipsId);
+      };
+
+      c.appendChild(nameSpan);
+      c.appendChild(removeBtn);
+      box.appendChild(c);
+    });
+  }
+
+  window.showFiles = function(inputId, chipsId) {
+    var inp = document.getElementById(inputId);
+    Array.from(inp.files).forEach(function(f) { storedFiles[inputId].push(f); });
+    inp.value = '';
+    renderChips(inputId, chipsId);
+  };
+  ['idArea','rcArea'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(!el) return;
+    var inputId = id==='idArea' ? 'idFile' : 'rcFile';
+    var chipsId = id==='idArea' ? 'idChips' : 'rcChips';
+    el.addEventListener('dragover',function(e){e.preventDefault();el.classList.add('over');});
+    el.addEventListener('dragleave',function(){el.classList.remove('over');});
+    el.addEventListener('drop',function(e){
+      e.preventDefault();el.classList.remove('over');
+      var inp=document.getElementById(inputId);
+      var dt=new DataTransfer();
+      Array.from(e.dataTransfer.files).forEach(function(f){ dt.items.add(f); });
+      inp.files=dt.files;
+      window.showFiles(inputId, chipsId);
+    });
+  });
+
+  // ── SIGN IN ───────────────────────────────────────
+  document.getElementById('loginBtn').addEventListener('click', function(){
+    var e=document.getElementById('loginEmail').value.trim();
+    var p=document.getElementById('loginPassword').value.trim();
+    clrErr('fLoginEmail');
+    if(!p){toast('Please enter your password');return;}
+    var ee=validateEmail(e);
+    if(ee){setErr('fLoginEmail',ee);return;}
+    toast('Signing in...');
+    fetch('login.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ email: e, password: p })
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+     if (data.success) {
+  if (data.blocked) {
+    localStorage.setItem('loggedIn', 'true');
+    localStorage.setItem('userRole', data.role);
+    localStorage.setItem('is_blocked', 'true');
+    localStorage.setItem('blocked_until', data.blocked_until || '');
+    localStorage.setItem('block_reason', data.block_reason || '');
+    localStorage.setItem('block_remaining', data.remaining || '');
+    localStorage.setItem('c2dz_user', JSON.stringify({
+      id: data.user_id, role: data.role,
+      full_name: data.full_name || '',
+      first_name: data.first_name || '',
+      last_name: data.last_name || '',
+      profile_photo: data.profile_photo || null,
+      agent_status: 'blocked', email: data.email || ''
+    }));
+    window.location.href = 'index.php';
+    return;
+  }
+  // باقي كود success الأصلي يبقى كما هو
+        localStorage.setItem('loggedIn', 'true');
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('c2dz_token', data.token);
+        localStorage.setItem('c2dz_user', JSON.stringify({
+    id: data.user_id,
+    role: data.role,
+    full_name: data.full_name || '',
+    first_name: data.first_name || '',
+    last_name: data.last_name || '',
+    profile_photo: data.profile_photo || null,
+    agent_status: data.agent_status || null,
+email: data.email || ''
+}));
+        setTimeout(function(){
+  if (data.role === 'admin') {
+    window.location.href = 'admin.php';
+  } else if (data.role === 'agent') {
+    if (data.status === 'pending' || data.status === 'rejected') {
+    window.location.href = 'agent_pending.php';
+} else {
+    window.location.href = 'index.php';
+}
+  } else {
+    window.location.href = 'index.php';
+  }
+}, 1200);
+      } else {
+  toast(data.error || 'Login failed');
+}
+    })
+    .catch(function(){ toast('Connection error'); });
+  });
+  document.getElementById('loginPassword').addEventListener('keydown',function(e){
+    if(e.key==='Enter') document.getElementById('loginBtn').click();
+  });
+
+  // ── TOAST ─────────────────────────────────────────
+  function toast(msg) {
+    var t=document.getElementById('toastEl');
+    t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t);
+    t._t=setTimeout(function(){t.classList.remove('show');},3200);
+  }
+  window.showBlockedScreen = function(until, reason, remaining) {
+    var untilText = until ? new Date(until).toLocaleDateString('en-GB', {
+      day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    }) : 'Permanently';
+    var existing = document.getElementById('sBlocked');
+    if (existing) existing.remove();
+    var div = document.createElement('div');
+    div.className = 'step active';
+    div.id = 'sBlocked';
+    div.innerHTML =
+      '<div style="text-align:center;padding:16px 0;">' +
+        '<div style="width:68px;height:68px;margin:0 auto 20px;border-radius:50%;' +
+             'background:rgba(244,91,91,0.1);border:2px solid rgba(244,91,91,0.3);' +
+             'display:flex;align-items:center;justify-content:center;">' +
+          '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f45b5b"' +
+               'stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<circle cx="12" cy="12" r="10"/>' +
+            '<line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>' +
+          '</svg>' +
+        '</div>' +
+        '<div style="font-family:\'Playfair Display\',serif;font-size:22px;font-weight:900;' +
+             'color:#fff;margin-bottom:10px;">Account Suspended</div>' +
+        (reason ?
+        '<div style="background:rgba(244,91,91,0.08);border:1px solid rgba(244,91,91,0.2);' +
+             'border-radius:12px;padding:14px 18px;margin-bottom:16px;text-align:left;">' +
+          '<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.38);' +
+               'text-transform:uppercase;letter-spacing:0.7px;margin-bottom:6px;">Reason</div>' +
+          '<div style="font-size:13.5px;color:rgba(255,255,255,0.85);font-weight:500;">' + reason + '</div>' +
+        '</div>' : '') +
+        '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);' +
+             'border-radius:12px;padding:14px 18px;margin-bottom:24px;">' +
+          (remaining ?
+          '<div style="display:flex;justify-content:space-between;align-items:center;' +
+               'padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:10px;">' +
+            '<span style="font-size:12px;color:rgba(255,255,255,0.38);font-weight:600;">' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+                   'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"' +
+                   'style="margin-right:5px;vertical-align:middle;">' +
+                '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' +
+              '</svg>Time Remaining</span>' +
+            '<span style="font-size:13px;color:#f5a623;font-weight:700;">' + remaining + '</span>' +
+          '</div>' : '') +
+          '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+            '<span style="font-size:12px;color:rgba(255,255,255,0.38);font-weight:600;">' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+                   'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"' +
+                   'style="margin-right:5px;vertical-align:middle;">' +
+                '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>' +
+                '<line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>' +
+              '</svg>' + (until ? 'Suspended Until' : 'Status') + '</span>' +
+            '<span style="font-size:13px;color:rgba(255,255,255,0.75);font-weight:600;">' + untilText + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div style="background:rgba(76,156,248,0.08);border:1px solid rgba(76,156,248,0.18);' +
+             'border-radius:12px;padding:14px 18px;margin-bottom:24px;text-align:left;' +
+             'display:flex;gap:12px;align-items:flex-start;">' +
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4c9cf8"' +
+               'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"' +
+               'style="flex-shrink:0;margin-top:2px;">' +
+            '<circle cx="12" cy="12" r="10"/>' +
+            '<line x1="12" y1="16" x2="12" y2="12"/>' +
+            '<line x1="12" y1="8" x2="12.01" y2="8"/>' +
+          '</svg>' +
+          '<div style="font-size:12.5px;color:rgba(255,255,255,0.45);line-height:1.6;">' +
+            'If you believe this is a mistake, please contact our support team.' +
+          '</div>' +
+        '</div>' +
+        '<button onclick="document.querySelectorAll(\'.step\').forEach(function(s){s.classList.remove(\'active\')});' +
+                'document.getElementById(\'sLogin\').classList.add(\'active\');"' +
+          'style="width:100%;padding:13px;background:rgba(255,255,255,0.06);' +
+                 'border:1.5px solid rgba(255,255,255,0.1);border-radius:12px;' +
+                 'font-family:\'Montserrat\',sans-serif;font-size:13px;font-weight:600;' +
+                 'color:rgba(255,255,255,0.5);cursor:pointer;display:flex;' +
+                 'align-items:center;justify-content:center;gap:8px;"' +
+          'onmouseover="this.style.borderColor=\'rgba(255,255,255,0.25)\';this.style.color=\'#fff\'"' +
+          'onmouseout="this.style.borderColor=\'rgba(255,255,255,0.1)\';this.style.color=\'rgba(255,255,255,0.5)\'">' +
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"' +
+               'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M19 12H5M12 5l-7 7 7 7"/>' +
+          '</svg>' +
+          'Back to Login' +
+        '</button>' +
+      '</div>';
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelector('.auth-card').appendChild(div);
+  };
+})();
+window.previewClientPhoto = function(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('clientAvatarPreview');
+    prev.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
+  };
+  reader.readAsDataURL(file);
+};
+window.previewAgentPhoto = function(input) {
+  var file = input.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var prev = document.getElementById('agentAvatarPreview');
+    prev.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
+  };
+  reader.readAsDataURL(file);
+};
+</script>
+
+<!-- FILE PREVIEW MODAL -->
+<div id="filePreviewModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:20px;" onclick="this.style.display='none'">
+  <div style="position:relative;max-width:90vw;max-height:90vh;" onclick="event.stopPropagation()">
+    <button onclick="document.getElementById('filePreviewModal').style.display='none'" style="position:absolute;top:-18px;right:-18px;width:36px;height:36px;border-radius:50%;background:#00bcd4;border:none;color:#fff;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">&times;</button>
+    <img id="filePreviewImg" src="" style="max-width:85vw;max-height:85vh;border-radius:12px;display:none;">
+    <iframe id="filePreviewPdf" src="" style="width:80vw;height:85vh;border:none;border-radius:12px;display:none;"></iframe>
+  </div>
+</div>
+</body>
+</html>

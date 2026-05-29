@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>China2DZ — Wishlist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="theme.js"></script>
+  <style>
+    /* ── Hero ── */
+    .wl-hero {
+      background: linear-gradient(135deg,#0d1220 0%,#0a0e1a 60%,#060810 100%);
+      padding: 56px 60px 48px;
+      border-bottom: 1px solid rgba(0,188,212,.15);
+      position: relative; overflow: hidden;
+    }
+    .wl-hero::before {
+      content:''; position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(0,188,212,.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(0,188,212,.04) 1px,transparent 1px);
+      background-size:40px 40px; pointer-events:none;
+    }
+    .wl-hero::after {
+      content:'\2665'; position:absolute; right:80px; top:50%;
+      transform:translateY(-50%); font-size:140px;
+      color:rgba(0,188,212,.04); pointer-events:none;
+    }
+    .wl-hero-inner { position:relative; z-index:1; }
+    .wl-eyebrow {
+      display:inline-flex; align-items:center; gap:7px;
+      font-family:'DM Sans',sans-serif; font-size:11px; font-weight:600;
+      letter-spacing:3px; text-transform:uppercase; color:#00bcd4; margin-bottom:14px;
+    }
+    .wl-eyebrow .dot {
+      width:6px; height:6px; background:#00bcd4;
+      border-radius:50%; animation:blink 2s infinite;
+    }
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .wl-hero h1 {
+      font-family:'Syne',sans-serif; font-size:clamp(30px,4vw,52px);
+      font-weight:800; color:#fff; line-height:1.1; margin:0;
+    }
+    .wl-hero h1 span { color:#00bcd4; }
+    .wl-hero-sub {
+      margin-top:10px; font-size:14px;
+      color:rgba(255,255,255,.4); font-family:'DM Sans',sans-serif;
+    }
+    .wl-count-pill {
+      display:inline-flex; align-items:center; gap:8px; margin-top:18px;
+      background:rgba(0,188,212,.08); border:1px solid rgba(0,188,212,.25);
+      border-radius:99px; padding:6px 16px;
+      font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; color:#00bcd4;
+    }
+
+    /* ── Main ── */
+    .wl-main { padding:36px 60px 80px; background:#080b14; min-height:60vh; }
+
+    /* ── Toolbar ── */
+    .wl-toolbar {
+      display:flex; align-items:center;
+      justify-content:space-between; margin-bottom:28px;
+    }
+    .wl-toolbar.hidden { display:none; }
+    .toolbar-label {
+      font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+      letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,.3);
+    }
+    .clear-all-btn {
+      display:flex; align-items:center; gap:7px; background:transparent;
+      border:1px solid rgba(231,76,60,.35); color:#e74c3c;
+      font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600;
+      padding:7px 16px; border-radius:6px; cursor:pointer; transition:all .2s;
+    }
+    .clear-all-btn:hover { background:#e74c3c; color:#fff; border-color:#e74c3c; }
+
+    /* ── Grid — same as index cars-container ── */
+    .wl-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+      gap:24px;
+    }
+    .wl-grid.hidden { display:none; }
+
+    /* card animation */
+    .wl-grid .car-card { animation:fadeUp .4s both; }
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .wl-grid .car-card.removing { animation:slideOut .28s forwards !important; }
+    @keyframes slideOut{to{opacity:0;transform:scale(.93) translateY(10px)}}
+
+    /* ── Empty ── */
+    .wl-empty {
+      display:flex; flex-direction:column; align-items:center;
+      justify-content:center; min-height:400px; text-align:center;
+    }
+    .wl-empty.hidden { display:none; }
+    .wl-empty-icon {
+      width:80px; height:80px; background:rgba(0,188,212,.07);
+      border:1px solid rgba(0,188,212,.18); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; margin-bottom:24px;
+    }
+    .wl-empty h2 {
+      font-family:'Syne',sans-serif; font-size:24px; font-weight:700;
+      color:rgba(255,255,255,.3); margin-bottom:10px;
+    }
+    .wl-empty p {
+      font-size:13px; color:rgba(255,255,255,.25);
+      line-height:1.7; max-width:300px; font-family:'DM Sans',sans-serif;
+    }
+    .wl-browse-btn {
+      margin-top:26px; display:inline-flex; align-items:center; gap:8px;
+      background:#00bcd4; color:#080b14;
+      font-family:'Syne',sans-serif; font-size:13px; font-weight:700;
+      letter-spacing:1px; padding:12px 26px; border-radius:8px;
+      text-decoration:none; transition:background .2s,transform .2s;
+    }
+    .wl-browse-btn:hover { background:#00acc1; transform:translateY(-2px); }
+
+    /* ── Loading ── */
+    .wl-loading { display:flex; align-items:center; justify-content:center; padding:100px; }
+    .wl-spinner {
+      width:34px; height:34px; border:3px solid rgba(255,255,255,.07);
+      border-top-color:#00bcd4; border-radius:50%; animation:spin .7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ── Modal ── */
+    .wl-modal-overlay {
+      position:fixed; inset:0; z-index:600;
+      background:rgba(0,0,0,.7); backdrop-filter:blur(6px);
+      display:flex; align-items:center; justify-content:center;
+      opacity:0; pointer-events:none; transition:opacity .25s;
+    }
+    .wl-modal-overlay.show { opacity:1; pointer-events:all; }
+    .wl-modal {
+      background:#0e1628; border:1px solid rgba(0,188,212,.2);
+      border-radius:16px; padding:32px 34px;
+      max-width:380px; width:90%; text-align:center;
+      transform:scale(.94) translateY(12px); transition:transform .25s;
+    }
+    .wl-modal-overlay.show .wl-modal { transform:scale(1) translateY(0); }
+    .wl-modal-icon {
+      width:56px; height:56px; background:rgba(231,76,60,.1);
+      border:1px solid rgba(231,76,60,.25); border-radius:50%;
+      display:flex; align-items:center; justify-content:center; margin:0 auto 18px;
+    }
+    .wl-modal h3 {
+      font-family:'Syne',sans-serif; font-size:20px;
+      font-weight:700; color:#fff; margin-bottom:8px;
+    }
+    .wl-modal p {
+      font-size:13px; color:rgba(255,255,255,.4);
+      line-height:1.65; font-family:'DM Sans',sans-serif;
+    }
+    .wl-modal-actions { display:flex; gap:10px; margin-top:26px; }
+    .wl-modal-cancel {
+      flex:1; padding:11px; background:transparent;
+      border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.4);
+      font-family:'DM Sans',sans-serif; font-size:13px;
+      border-radius:8px; cursor:pointer; transition:all .2s;
+    }
+    .wl-modal-cancel:hover { border-color:rgba(255,255,255,.3); color:#fff; }
+    .wl-modal-confirm {
+      flex:1; padding:11px; background:#e74c3c; border:none; color:#fff;
+      font-family:'Syne',sans-serif; font-size:14px; font-weight:700;
+      border-radius:8px; cursor:pointer; transition:background .2s;
+    }
+    .wl-modal-confirm:hover { background:#c0392b; }
+
+    /* ── Toast ── */
+    .wl-toast {
+      position:fixed; bottom:30px; left:50%;
+      transform:translateX(-50%) translateY(60px);
+      background:#0e1628; border:1px solid rgba(0,188,212,.25);
+      border-left:3px solid #00bcd4; border-radius:8px;
+      padding:11px 24px; font-family:'DM Sans',sans-serif;
+      font-size:13px; color:#fff; z-index:999; opacity:0; white-space:nowrap;
+      transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+      box-shadow:0 8px 30px rgba(0,0,0,.5);
+    }
+    .wl-toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+    @media(max-width:768px){
+      .wl-hero { padding:36px 20px 32px; }
+      .wl-hero::after { display:none; }
+      .wl-main { padding:24px 16px 60px; }
+      .wl-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<script>
+  if (!localStorage.getItem('c2dz_user')) { window.location.replace('login.html'); }
+</script>
+
+<!-- ══ HEADER (identical to index.php) ══ -->
+<header id="mainHeader">
+  <div class="logo">
+    <a href="index.php"><span class="logo-china">China</span><span class="logo-2dz">2DZ</span></a>
+  </div>
+  <nav id="mainNav">
+    <ul>
+      <li><a href="index.php#home">Home</a></li>
+      <li><a href="index.php#cars">Cars</a></li>
+      <li><a href="index.php#agents">Dealers</a></li>
+      <li><a href="index.php#reviews">Reviews</a></li>
+      <li>
+        <a href="wishlist.html" class="nav-icon-link" style="color:#00bcd4;font-weight:700;">
+          &#9825; Wishlist
+          <span id="navBadge" style="display:none;background:#00bcd4;color:#080b14;font-size:.68rem;padding:1px 6px;border-radius:10px;margin-right:4px;font-weight:700;"></span>
+        </a>
+      </li>
+      <li id="nav-login-li"><a href="login.html" class="login-btn">Sign In</a></li>
+      <li id="nav-profile-li" style="display:none;position:relative;">
+        <button id="navProfileBtn" onclick="toggleProfileDropdown()" style="background:none;border:1px solid rgba(255,255,255,0.12);cursor:pointer;display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:20px;">
+          <img id="navAvatar" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
+          <span id="navUserName" style="font-size:.85rem;font-weight:600;color:#f0f0f0;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="profileDropdown" style="display:none;position:absolute;top:calc(100% + 8px);right:0;min-width:220px;background:#161616;border:1px solid rgba(255,255,255,0.1);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.5);z-index:999;overflow:hidden;">
+          <div style="padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;gap:10px;align-items:center;">
+            <img id="ndAvatar" src="" style="width:38px;height:38px;border-radius:50%;object-fit:cover;">
+            <div>
+              <div id="ndName" style="font-weight:700;font-size:.88rem;color:#fff;"></div>
+              <div id="ndRole" style="font-size:.75rem;color:rgba(255,255,255,0.4);"></div>
+            </div>
+          </div>
+          <a href="check_dashboard.php" id="agentDashLink" style="display:none;align-items:center;gap:10px;padding:12px 16px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,0.06);">&#127962; My Dashboard</a>
+          <a href="profile.php" style="display:flex;align-items:center;gap:10px;padding:12px 16px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,0.06);">&#128100; My Profile</a>
+          <a href="wishlist.html" style="display:flex;align-items:center;gap:10px;padding:12px 16px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,0.06);">&#10084;&#65039; Wishlist</a>
+          <a href="profile.php?tab=notifications" style="display:flex;align-items:center;gap:10px;padding:12px 16px;color:rgba(255,255,255,0.8);text-decoration:none;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,0.06);">&#128276; Notifications</a>
+          <button onclick="doLogout()" style="display:flex;align-items:center;gap:10px;padding:12px 16px;color:#ff5057;font-size:.85rem;background:none;border:none;cursor:pointer;width:100%;font-family:inherit;">&#128682; Logout</button>
+        </div>
+      </li>
+      <button id="themeBtn" onclick="toggleTheme()" style="background:none;border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:16px;">&#127769;</button>
+    </ul>
+  </nav>
+  <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+</header>
+
+<!-- ══ HERO ══ -->
+<section class="wl-hero">
+  <div class="wl-hero-inner">
+    <div class="wl-eyebrow"><div class="dot"></div> My Collection</div>
+    <h1>Your <span>Wishlist</span></h1>
+    <p class="wl-hero-sub">Cars you saved — all in one place.</p>
+    <div class="wl-count-pill">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <span id="countText">0 cars saved</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAIN ══ -->
+<main class="wl-main">
+
+  <div class="wl-toolbar hidden" id="wlToolbar">
+    <div class="toolbar-label" id="toolbarLabel">0 saved cars</div>
+    <button class="clear-all-btn" onclick="confirmClearAll()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
+      </svg>
+      Clear All
+    </button>
+  </div>
+
+  <div class="wl-loading" id="wlLoading"><div class="wl-spinner"></div></div>
+
+  <div class="wl-empty hidden" id="wlEmpty">
+    <div class="wl-empty-icon">
+      <svg width="34" height="34" fill="none" stroke="#00bcd4" stroke-width="1.6" viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </div>
+    <h2>Your wishlist is empty</h2>
+    <p>Browse cars and tap &#9825; on any listing to save it here.</p>
+    <a href="index.php#cars" class="wl-browse-btn">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <rect x="1" y="3" width="15" height="13" rx="1"/>
+        <path d="M16 8l4 2v5h-4z"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/>
+        <circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+      Browse Cars
+    </a>
+  </div>
+
+  <!-- Grid: car cards injected here — exact same markup as index.php -->
+  <div class="wl-grid hidden" id="wlGrid"></div>
+
+</main>
+
+<!-- ══ CONTACT MODAL (same as index) ══ -->
+<div id="contactModal" style="display:none;position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div style="background:#141414;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:30px 28px;max-width:360px;width:90%;position:relative;">
+    <button onclick="closeContactModal()" style="position:absolute;top:14px;right:14px;background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;">&#10005;</button>
+    <h3 id="contactModalTitle" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:18px;"></h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a id="contactWhatsApp" href="#" target="_blank" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);border-radius:10px;color:#25d366;text-decoration:none;font-weight:600;font-size:.88rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.116 1.528 5.842L.057 23.5l5.806-1.524A11.955 11.955 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.65-.52-5.16-1.426l-.37-.22-3.443.903.919-3.352-.242-.386A9.943 9.943 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        WhatsApp
+      </a>
+      <a id="contactPhone" href="#" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(0,188,212,.08);border:1px solid rgba(0,188,212,.25);border-radius:10px;color:#00bcd4;text-decoration:none;font-weight:600;font-size:.88rem;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.65 4.59 2 2 0 0 1 3.62 2.43h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+        Call
+      </a>
+      <button id="contactChatBtn" onclick="startChatFromModal()" style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.7);font-weight:600;font-size:.88rem;cursor:pointer;font-family:inherit;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Chat
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONFIRM MODAL ══ -->
+<div class="wl-modal-overlay" id="wlModalOverlay">
+  <div class="wl-modal">
+    <div class="wl-modal-icon">
+      <svg width="22" height="22" fill="none" stroke="#e74c3c" stroke-width="1.8" viewBox="0 0 24 24">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+        <path d="M10 11v6M14 11v6M9 6V4h6v2"/>
+      </svg>
+    </div>
+    <h3 id="modalTitle">Remove this car?</h3>
+    <p id="modalMsg">This car will be removed from your wishlist.</p>
+    <div class="wl-modal-actions">
+      <button class="wl-modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="wl-modal-confirm" id="modalConfirmBtn" onclick="executeAction()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div class="wl-toast" id="wlToast"></div>
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+<script>
+(function () {
+
+  /* ── auth ── */
+  var userRaw = localStorage.getItem('c2dz_user');
+  var user    = userRaw ? JSON.parse(userRaw) : null;
+  if (!user || !user.id) { window.location.replace('login.html'); return; }
+  var userId = user.id;
+  var isLoggedIn = true;
+
+  var favorites     = [];
+  var pendingAction = null;
+  var toastTimer;
+
+  /* contact modal state */
+  var _contactAgentId = null;
+  var _contactCarId   = null;
+  var _contactCarName = null;
+
+  /* ── init nav ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof initNav    === 'function') initNav();
+    if (typeof initCommon === 'function') initCommon();
+    loadFavorites();
+  });
+
+  /* ════════════════════════════════
+     LOAD
+  ════════════════════════════════ */
+  function loadFavorites() {
+    fetch('wishlist_action.php?action=get&user_id=' + userId)
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        hideEl('wlLoading');
+        if (data.success) { favorites = data.favorites || []; render(); }
+        else { showEmpty(); }
+      })
+      .catch(function () { hideEl('wlLoading'); showEmpty(); });
+  }
+
+  /* ════════════════════════════════
+     RENDER
+  ════════════════════════════════ */
+  function render() {
+    var grid    = document.getElementById('wlGrid');
+    var toolbar = document.getElementById('wlToolbar');
+    var n       = favorites.length;
+
+    document.getElementById('countText').textContent =
+      n === 0 ? '0 cars saved' : n + ' car' + (n === 1 ? '' : 's') + ' saved';
+    document.getElementById('toolbarLabel').textContent =
+      n + ' saved car' + (n === 1 ? '' : 's');
+
+    var badge = document.getElementById('navBadge');
+    if (n > 0) { badge.textContent = n; badge.style.display = 'inline'; }
+    else { badge.style.display = 'none'; }
+
+    if (n === 0) {
+      grid.classList.add('hidden');
+      toolbar.classList.add('hidden');
+      showEmpty();
+      return;
+    }
+
+    document.getElementById('wlEmpty').classList.add('hidden');
+    toolbar.classList.remove('hidden');
+    grid.classList.remove('hidden');
+    grid.style.display = '';
+
+    grid.innerHTML = '';
+    favorites.forEach(function (car, i) {
+      var card = buildCard(car, i);
+      grid.appendChild(card);
+    });
+  }
+
+  function showEmpty() {
+    document.getElementById('wlEmpty').classList.remove('hidden');
+    document.getElementById('wlGrid').classList.add('hidden');
+    document.getElementById('wlToolbar').classList.add('hidden');
+  }
+
+  /* ════════════════════════════════
+     BUILD CARD  — same as index.php
+  ════════════════════════════════ */
+  function buildCard(car, i) {
+    var carId    = car.car_id   || '';
+    var favRowId = car.id;  /* favorites table row id */
+    var brand    = car.brand    || car.car_name.split(' ')[0] || '';
+    var title    = car.title || car.car_name || '';
+    var year     = car.year     || car.car_year  || '';
+    var agentId  = car.agent_id || '';
+    var phone    = car.phone    || '';
+    var fname    = car.first_name || '';
+    var lname    = car.last_name  || '';
+    var company  = car.company_name || '';
+    var desc     = car.description  || '';
+    var carLink  = 'listing.html?id=' + carId;
+
+    /* price — guard NaN */
+    var priceNum = parseFloat(String(car.price || car.car_price || '').replace(/[^0-9.]/g, ''));
+    var priceStr = (!isNaN(priceNum) && priceNum > 0)
+      ? Number(priceNum).toLocaleString()
+      : '';
+
+    /* photos */
+    var photosRaw = car.photos || car.car_image || '';
+    var photoList = photosRaw
+      ? photosRaw.split('|').filter(function(p){ return p.trim() !== ''; })
+      : [];
+    /* normalise paths: add host if relative */
+    photoList = photoList.map(function(p){
+      return p.startsWith('http') ? p : 'http://localhost/' + p;
+    });
+    var firstPhoto = photoList.length > 0 ? photoList[0] : (car.car_image || '');
+
+    /* ── wrapper div ── */
+    var wrap = document.createElement('div');
+    wrap.className = 'car-card';
+    wrap.dataset.brand = brand;
+    wrap.dataset.id    = carId;
+    wrap.style.animationDelay = (i * 0.06) + 's';
+    wrap.style.cursor = 'pointer';
+    wrap.onclick = function(e){
+      if (e.target.closest('.favorite-btn') ||
+          e.target.closest('.contact-agent-btn') ||
+          e.target.closest('.more-details-btn') ||
+          e.target.closest('.gallery-prev') ||
+          e.target.closest('.gallery-next')) return;
+      window.location.href = carLink;
+    };
+
+    /* ── image / gallery ── */
+    var imgWrapHtml = '';
+    if (photoList.length > 1) {
+      var galleryImgs = photoList.map(function(p, idx){
+        return '<img src="' + esc(p) + '" alt="' + esc(title) + '"'
+          + ' class="gallery-img' + (idx === 0 ? ' active' : '') + '"'
+          + ' onerror="this.src=\'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400\'">';
+      }).join('');
+      var dots = photoList.map(function(_, idx){
+        return '<span class="gdot' + (idx === 0 ? ' active' : '') + '"></span>';
+      }).join('');
+      imgWrapHtml =
+        '<div class="car-img-wrapper">'
+          + '<div class="car-gallery" data-index="0">'
+            + galleryImgs
+            + '<button class="gallery-prev" onclick="event.stopPropagation();galleryNav(this,-1)">&#8249;</button>'
+            + '<button class="gallery-next" onclick="event.stopPropagation();galleryNav(this,1)">&#8250;</button>'
+            + '<div class="gallery-dots">' + dots + '</div>'
+          + '</div>'
+          + favBtn(carId, car, firstPhoto, priceStr, title)
+        + '</div>';
+    } else {
+      imgWrapHtml =
+        '<div class="car-img-wrapper">'
+          + '<img src="' + esc(firstPhoto) + '" alt="' + esc(title) + '"'
+          + ' onerror="this.src=\'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400\'">'
+          + favBtn(carId, car, firstPhoto, priceStr, title)
+        + '</div>';
+    }
+
+    /* ── card info (same structure as index) ── */
+    var agentHtml =
+      '<div class="car-agent-info">'
+        + '<div class="agent-name">'
+          + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'
+          + esc(fname + ' ' + lname)
+        + '</div>'
+        + (company
+          ? '<div class="agent-company">'
+              + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'
+              + esc(company)
+            + '</div>'
+          : '')
+        + (phone
+          ? '<div class="agent-phone">'
+              + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.1 19.79 19.79 0 0 1 1.65 4.59 2 2 0 0 1 3.62 2.43h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.81-.81a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 21.73 17z"/></svg>'
+              + esc(phone)
+            + '</div>'
+          : '')
+      + '</div>';
+
+    var descHtml = desc
+      ? '<div class="car-desc">' + esc(desc) + '</div>'
+      : '';
+
+    var actionsHtml =
+      '<div class="card-actions-row">'
+        + '<a href="javascript:void(0)"'
+        + ' onclick="event.stopPropagation();openContactModal(\''
+        + esc(phone) + '\',\'' + esc(fname+' '+lname) + '\',' + agentId + ',' + carId + ',\'' + esc(title) + '\')"'
+        + ' class="contact-agent-btn">Contact &#8594;</a>'
+        + '<a href="' + esc(carLink) + '" class="more-details-btn" onclick="event.stopPropagation();">'
+        + 'Details'
+        + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>'
+        + '</a>'
+      + '</div>';
+
+    wrap.innerHTML =
+      imgWrapHtml
+      + '<div class="car-info">'
+        + '<div class="car-brand-tag">' + esc(brand) + '</div>'
+        + '<h3>' + esc(title) + '</h3>'
+        + '<div class="car-quick-specs"><span>' + esc(year) + '</span></div>'
+        + descHtml
+        + agentHtml
+        + '<div class="car-price-block">'
+          + '<div class="car-price">' + (priceStr ? esc(priceStr) + ' DZD' : 'Price on request') + '</div>'
+          + '<div class="car-nodouane">'
+            + '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+            + ' Duty-Free'
+          + '</div>'
+        + '</div>'
+        + actionsHtml
+      + '</div>';
+
+    return wrap;
+  }
+
+  /* fav button HTML — active (already saved) */
+  function favBtn(carId, car, firstPhoto, priceStr, title) {
+    /* it's already saved → show active heart; clicking removes it */
+    return '<a href="javascript:void(0)"'
+      + ' class="favorite-btn active" id="fav-' + carId + '"'
+      + ' onclick="event.stopPropagation();removeFromWishlist(' + car.id + ',\'' + esc(title) + '\')">'
+      + '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">'
+      + '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'
+      + '</svg>'
+      + '</a>';
+  }
+
+  /* ── Remove via heart button (instant, no modal) ── */
+  window.removeFromWishlist = function(favRowId, name) {
+    var card = document.querySelector('.car-card[data-id]');
+    /* find the right card by iterating */
+    var cards = document.querySelectorAll('.wl-grid .car-card');
+    var targetCard = null;
+    favorites.forEach(function(f, i){
+      if (f.id == favRowId && cards[i]) targetCard = cards[i];
+    });
+    if (targetCard) targetCard.classList.add('removing');
+    setTimeout(function(){
+      fetch('wishlist_action.php', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({action:'delete', id: favRowId, user_id: userId})
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d.success) {
+          favorites = favorites.filter(function(c){ return c.id != favRowId; });
+          render();
+          showToast('\u2713 "' + (name||'Car') + '" removed from wishlist');
+        }
+      });
+    }, 280);
+  };
+
+  /* ════════════════════════════════
+     CONTACT MODAL
+  ════════════════════════════════ */
+  window.openContactModal = function(phone, agentName, agentId, carId, carName) {
+    _contactAgentId = agentId;
+    _contactCarId   = carId;
+    _contactCarName = carName;
+    document.getElementById('contactModalTitle').textContent = 'Contact ' + agentName;
+    document.getElementById('contactWhatsApp').href =
+      'https://wa.me/' + phone.replace(/\D/g,'') + '?text=' +
+      encodeURIComponent('Hello, I am interested in: ' + carName);
+    document.getElementById('contactPhone').href = 'tel:' + phone;
+    var modal = document.getElementById('contactModal');
+    modal.style.display = 'flex';
+  };
+  window.closeContactModal = function() {
+    document.getElementById('contactModal').style.display = 'none';
+  };
+  document.getElementById('contactModal').addEventListener('click', function(e){
+    if (e.target === this) closeContactModal();
+  });
+
+  window.startChatFromModal = function() {
+    closeContactModal();
+    if (typeof startChat === 'function') {
+      startChat(_contactAgentId, _contactCarName, _contactCarId);
+    }
+  };
+
+  /* ════════════════════════════════
+     CLEAR ALL MODAL
+  ════════════════════════════════ */
+  window.confirmClearAll = function() {
+    pendingAction = {type:'all'};
+    document.getElementById('modalTitle').textContent = 'Clear wishlist?';
+    document.getElementById('modalMsg').textContent =
+      'All saved cars will be permanently removed from your wishlist.';
+    document.getElementById('modalConfirmBtn').textContent = 'Clear All';
+    document.getElementById('wlModalOverlay').classList.add('show');
+  };
+
+  window.closeModal = function() {
+    document.getElementById('wlModalOverlay').classList.remove('show');
+    pendingAction = null;
+  };
+
+  window.executeAction = function() {
+    var action = pendingAction;
+    closeModal();
+    if (!action) return;
+    fetch('wishlist_action.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({action:'clear', user_id: userId})
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.success) { favorites = []; render(); showToast('\u2713 Wishlist cleared'); }
+      else { showToast('\u26a0 Error \u2014 please try again'); }
+    })
+    .catch(function(){ showToast('\u26a0 Connection error'); });
+  };
+
+  document.getElementById('wlModalOverlay').addEventListener('click', function(e){
+    if (e.target === this) closeModal();
+  });
+
+  /* ════════════════════════════════
+     UTILS
+  ════════════════════════════════ */
+  function showToast(msg) {
+    var el = document.getElementById('wlToast');
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2600);
+  }
+  function esc(s) {
+    return String(s||'')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+  function hideEl(id){ var e=document.getElementById(id); if(e) e.style.display='none'; }
+
+})();
+
+/* ── Gallery nav (global, same as index) ── */
+function galleryNav(btn, dir) {
+  var gallery = btn.closest('.car-gallery');
+  var imgs = gallery.querySelectorAll('.gallery-img');
+  var dots = gallery.querySelectorAll('.gdot');
+  var idx  = parseInt(gallery.dataset.index) || 0;
+  imgs[idx].classList.remove('active');
+  dots[idx].classList.remove('active');
+  idx = (idx + dir + imgs.length) % imgs.length;
+  imgs[idx].classList.add('active');
+  dots[idx].classList.add('active');
+  gallery.dataset.index = idx;
+}
+
+/* ── startChat (same as index) ── */
+async function startChat(agentId, carName, carId) {
+  var token = localStorage.getItem('c2dz_token');
+  if (!token) { window.location.href = 'login.html'; return; }
+  try {
+    var res = await fetch('api.php?action=start_conversation', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({agent_id: parseInt(agentId), car_id: String(carId), car_name: carName})
+    });
+    var data = JSON.parse(await res.text());
+    if (data.success) {
+      window.location.href = 'profile.php?tab=chat&conv=' + data.data.conversation_id;
+    } else { alert(data.message); }
+  } catch(e) { alert('Error: ' + e.message); }
+}
+</script>
+</body>
+</html>

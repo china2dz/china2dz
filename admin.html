@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AdminOS</title>
+  <link rel="stylesheet" href="../admin.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="theme.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><i data-lucide="shield-check"></i></div>
+      <span class="logo-text">AdminOS</span>
+    </div>
+    <button class="collapse-btn" id="collapseBtn" title="Toggle sidebar">
+      <i data-lucide="panel-left-close"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <span class="nav-label">Overview</span>
+    <a href="#" class="nav-item active" data-page="dashboard">
+      <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+    </a>
+    <a href="#" class="nav-item" data-page="notifications">
+      <i data-lucide="bell"></i><span>Notifications</span>
+      <span class="badge" id="notifBadge">4</span>
+    </a>
+
+    <span class="nav-label">Management</span>
+    <a href="#" class="nav-item" data-page="agents">
+      <i data-lucide="users"></i><span>Agents</span>
+    </a>
+    <a href="#" class="nav-item" data-page="subscriptions">
+      <i data-lucide="credit-card"></i><span>Subscriptions</span>
+    </a>
+
+    <span class="nav-label">System</span>
+    <a href="#" class="nav-item" data-page="monitoring">
+      <i data-lucide="activity"></i><span>Monitoring</span>
+    </a>
+    <a href="#" class="nav-item" data-page="reports">
+      <i data-lucide="flag"></i><span>Reports</span>
+      <span class="badge danger" id="reportBadge">2</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-profile">
+      <div class="avatar">A</div>
+      <div class="admin-info">
+        <span class="admin-name">Super Admin</span>
+        <span class="admin-role">System Controller</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main" id="main">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menuBtn"><i data-lucide="menu"></i></button>
+      <div class="breadcrumb" id="breadcrumb">
+        <span class="bc-item" data-page="dashboard" id="bcRoot">Dashboard</span>
+        <span class="bc-sep" id="bcSep" style="display:none"><i data-lucide="chevron-right"></i></span>
+        <span class="bc-child" id="bcChild" style="display:none"></span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="topSearchBtn" title="Search"><i data-lucide="search"></i></button>
+      <button class="icon-btn" data-page="notifications" title="Notifications">
+        <i data-lucide="bell"></i>
+        <span class="dot" id="notifDot"></span>
+      </button>
+      <div class="avatar sm">A</div>
+    </div>
+  </header>
+
+  <!-- SEARCH OVERLAY -->
+  <div class="search-overlay" id="searchOverlay">
+    <div class="search-modal">
+      <div class="search-input-wrap">
+        <i data-lucide="search"></i>
+        <input type="text" id="globalSearch" placeholder="Search agents, subscriptions, reports…" autocomplete="off"/>
+        <kbd>ESC</kbd>
+      </div>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="pages-container" id="pagesContainer">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Welcome back, Admin <span>👋</span></h1>
+        <p>Here's what's happening across your system today.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card clickable" data-page="agents" data-filter="all" title="View all agents">
+          <div class="stat-icon blue"><i data-lucide="users"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="statAgents">0</span>
+            <span class="stat-label">Total Agents</span>
+          </div>
+          <div class="stat-trend up"><i data-lucide="trending-up"></i> +3</div>
+        </div>
+        <div class="stat-card clickable" data-page="agents" data-filter="pending" title="View pending agents">
+          <div class="stat-icon amber"><i data-lucide="clock"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="statPending">0</span>
+            <span class="stat-label">Pending Agents</span>
+          </div>
+          <div class="stat-trend warn"><i data-lucide="alert-circle"></i> Review</div>
+        </div>
+        <div class="stat-card clickable" data-page="subscriptions" title="View subscriptions">
+          <div class="stat-icon green"><i data-lucide="credit-card"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="statSubs">0</span>
+            <span class="stat-label">Active Subs</span>
+          </div>
+          <div class="stat-trend up"><i data-lucide="trending-up"></i> +5</div>
+        </div>
+        <div class="stat-card clickable" data-page="reports" title="View reports">
+          <div class="stat-icon red"><i data-lucide="flag"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" id="statReports">0</span>
+            <span class="stat-label">Open Reports</span>
+          </div>
+          <div class="stat-trend down"><i data-lucide="alert-triangle"></i> Urgent</div>
+        </div>
+      </div>
+
+      <div class="dashboard-bottom">
+        <div class="card recent-activity">
+          <div class="card-head">
+            <h2><i data-lucide="zap"></i> Recent Activity</h2>
+            <span class="card-subtitle">Click any item to view details</span>
+          </div>
+          <ul class="activity-list" id="activityList">
+          </ul>
+        </div>
+        <div class="card quick-actions">
+          <div class="card-head">
+            <h2><i data-lucide="zap"></i> Quick Actions</h2>
+          </div>
+          <div class="action-btns">
+            <button class="action-btn" data-page="agents" data-filter="pending">
+              <i data-lucide="user-check"></i><span>Review Agents</span>
+            </button>
+            <button class="action-btn" data-page="subscriptions">
+              <i data-lucide="credit-card"></i><span>Check Subs</span>
+            </button>
+            <button class="action-btn" data-page="reports">
+              <i data-lucide="flag"></i><span>Open Reports</span>
+            </button>
+            <button class="action-btn" data-page="monitoring">
+              <i data-lucide="activity"></i><span>Monitoring</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ NOTIFICATIONS ═══ -->
+    <section class="page" id="page-notifications">
+      <div class="page-header">
+        <h1>Notifications</h1>
+        <p>All system alerts and updates in one place.</p>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h2><i data-lucide="bell"></i> Inbox</h2>
+          <button class="btn-ghost" id="markAllRead">Mark all read</button>
+        </div>
+        <ul class="notif-list" id="notifList">
+          <li class="notif-item unread clickable" data-page="agents" data-agent-id="A-002">
+            <div class="notif-icon blue"><i data-lucide="user-plus"></i></div>
+            <div class="notif-body">
+              <strong>New Agent Registration</strong>
+              <p>Karim Boukhalfa has signed up and is awaiting approval.</p>
+              <time>Just now</time>
+            </div>
+            <button class="notif-close" title="Dismiss"><i data-lucide="x"></i></button>
+          </li>
+          <li class="notif-item unread clickable" data-page="subscriptions" data-sub-id="S-003">
+            <div class="notif-icon green"><i data-lucide="receipt"></i></div>
+            <div class="notif-body">
+              <strong>Payment Proof Uploaded</strong>
+              <p>Nadia Khelil submitted proof for Premium Plan subscription.</p>
+              <time>5 min ago</time>
+            </div>
+            <button class="notif-close" title="Dismiss"><i data-lucide="x"></i></button>
+          </li>
+          <li class="notif-item unread clickable" data-page="reports" data-report-id="R-001">
+            <div class="notif-icon red"><i data-lucide="flag"></i></div>
+            <div class="notif-body">
+              <strong>New Report</strong>
+              <p>A user filed a complaint against Agent Riad Messaoudi.</p>
+              <time>1 hr ago</time>
+            </div>
+            <button class="notif-close" title="Dismiss"><i data-lucide="x"></i></button>
+          </li>
+          <li class="notif-item unread clickable" data-page="subscriptions" data-sub-id="S-001">
+            <div class="notif-icon amber"><i data-lucide="credit-card"></i></div>
+            <div class="notif-body">
+              <strong>Subscription Request</strong>
+              <p>Mohamed Salah requested upgrade to Pro Plan.</p>
+              <time>2 hr ago</time>
+            </div>
+            <button class="notif-close" title="Dismiss"><i data-lucide="x"></i></button>
+          </li>
+          <li class="notif-item clickable" data-page="agents" data-agent-id="A-003">
+            <div class="notif-icon blue"><i data-lucide="user-plus"></i></div>
+            <div class="notif-body">
+              <strong>New Agent Registration</strong>
+              <p>Yacine Hamidi registered yesterday.</p>
+              <time>Yesterday</time>
+            </div>
+            <button class="notif-close" title="Dismiss"><i data-lucide="x"></i></button>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ═══ AGENTS ═══ -->
+    <section class="page" id="page-agents">
+      <div class="page-header">
+        <h1>Agents</h1>
+        <p>Manage agent accounts — approve, block, or reject.</p>
+      </div>
+      <div class="filter-bar">
+        <div class="search-box">
+          <i data-lucide="search"></i>
+          <input type="text" placeholder="Search agents…" id="agentSearch"/>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All</button>
+          <button class="filter-tab" data-filter="pending">Pending</button>
+          <button class="filter-tab" data-filter="active">Active</button>
+          <button class="filter-tab" data-filter="blocked">Blocked</button>
+        </div>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Email</th>
+              <th>Joined</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="agentsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══ AGENT PROFILE ═══ -->
+    <section class="page" id="page-agent-profile">
+      <div class="profile-back">
+        <button class="back-btn" id="backToAgents">
+          <i data-lucide="arrow-left"></i> Back to Agents
+        </button>
+      </div>
+      <div id="agentProfileContent"></div>
+    </section>
+
+    <!-- ═══ SUBSCRIPTIONS ═══ -->
+    <section class="page" id="page-subscriptions">
+      <div class="page-header">
+        <h1>Subscriptions</h1>
+        <p>Review payment proofs and manage subscription requests.</p>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Plan</th>
+              <th>Payment Proof</th>
+              <th>Requested</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="subsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Proof Modal -->
+      <div class="modal-overlay" id="proofModal">
+        <div class="modal">
+          <div class="modal-head">
+            <h3>Payment Proof</h3>
+            <button class="modal-close" id="closeModal"><i data-lucide="x"></i></button>
+          </div>
+          <div class="modal-body">
+            <div class="proof-placeholder">
+              <i data-lucide="image"></i>
+              <span id="proofFileName">proof_payment.jpg</span>
+            </div>
+            <div class="modal-actions">
+              <button class="btn green" id="modalApprove"><i data-lucide="check"></i> Approve</button>
+              <button class="btn red"   id="modalReject"><i data-lucide="x"></i> Reject</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ MONITORING ═══ -->
+    <section class="page" id="page-monitoring">
+      <div class="page-header">
+        <h1>System Monitoring</h1>
+        <p>Read-only overview of platform activity.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i data-lucide="users"></i></div>
+          <div class="stat-info"><span class="stat-value" id="monTotal">0</span><span class="stat-label">Total Agents</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i data-lucide="check-circle"></i></div>
+          <div class="stat-info"><span class="stat-value" id="monActive">0</span><span class="stat-label">Active Agents</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon amber"><i data-lucide="clock"></i></div>
+          <div class="stat-info"><span class="stat-value" id="monPending">0</span><span class="stat-label">Pending</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i data-lucide="ban"></i></div>
+          <div class="stat-info"><span class="stat-value" id="monBlocked">0</span><span class="stat-label">Blocked</span></div>
+        </div>
+      </div>
+      <div class="monitor-grid">
+        <div class="card">
+          <div class="card-head"><h2><i data-lucide="bar-chart-2"></i> Subscription Plans</h2></div>
+          <div class="plan-bars" id="planBars"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2><i data-lucide="activity"></i> Agent Status Breakdown</h2></div>
+          <div class="donut-wrap">
+            <svg viewBox="0 0 36 36" class="donut-chart" id="donutChart">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1a1a2e" stroke-width="3"/>
+              <circle id="donutActive"  cx="18" cy="18" r="15.9" fill="none" stroke="var(--green)" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25"/>
+              <circle id="donutPending" cx="18" cy="18" r="15.9" fill="none" stroke="var(--amber)" stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25"/>
+              <circle id="donutBlocked" cx="18" cy="18" r="15.9" fill="none" stroke="var(--red)"   stroke-width="3" stroke-dasharray="0 100" stroke-dashoffset="25"/>
+            </svg>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ REPORTS ═══ -->
+    <section class="page" id="page-reports">
+      <div class="page-header">
+        <h1>Reports</h1>
+        <p>Handle complaints and take action on violations.</p>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Reporter</th>
+              <th>Agent Reported</th>
+              <th>Reason</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reportsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /pages-container -->
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="../admin.js"></script>
+</body>
+</html>

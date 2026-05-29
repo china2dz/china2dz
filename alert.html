@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Create Alert</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f0f0f; font-family: 'DM Sans', sans-serif; }
+
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
+  @keyframes modalIn { from{opacity:0;transform:scale(0.94) translateY(18px)} to{opacity:1;transform:scale(1) translateY(0)} }
+  @keyframes fadeField { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes successPop { 0%{transform:scale(0)} 60%{transform:scale(1.15)} 100%{transform:scale(1)} }
+
+  /* Overlay */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+  }
+  .overlay.hidden { display: none; }
+
+  /* Modal */
+  .modal {
+    background: #161616; border: 1px solid #272727; border-radius: 20px;
+    padding: 36px; width: 100%; max-width: 480px; position: relative;
+    animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+    max-height: 90vh; overflow-y: auto;
+  }
+  .close-x {
+    position: absolute; top: 14px; right: 18px; background: none;
+    border: none; color: #444; font-size: 18px; cursor: pointer; line-height: 1; z-index: 2;
+  }
+
+  /* Modal Head */
+  .m-head { text-align: center; margin-bottom: 24px; }
+  .bell-wrap { font-size: 36px; margin-bottom: 10px; }
+  .m-title { font-family: 'Syne', sans-serif; font-size: 22px; color: #fff; margin-bottom: 6px; }
+  .m-sub { color: #666; font-size: 13px; line-height: 1.5; }
+
+  /* Summary box */
+  .summary-box {
+    background: #1c1c1c; border: 1px solid #282828;
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 20px;
+  }
+  .summary-label { color: #555; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .summary-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 24px; }
+  .chip {
+    background: rgba(220,50,50,0.12); border: 1px solid rgba(220,50,50,0.25);
+    color: #ff6b6b; border-radius: 14px; padding: 3px 10px; font-size: 12px;
+  }
+
+  /* Label & input */
+  .label {
+    display: block; color: #777; font-size: 11px; margin-bottom: 8px;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .field-group { margin-bottom: 16px; }
+  .input {
+    width: 100%; background: #1a1a1a; border: 1px solid #2e2e2e;
+    border-radius: 8px; padding: 11px 14px; color: #fff;
+    font-size: 14px; outline: none; transition: border 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .input:focus { border-color: #555; }
+  .input.error { border-color: #dc3232; animation: shake 0.4s ease; }
+  .error-text { color: #dc3232; font-size: 12px; margin-top: 6px; }
+  .hidden { display: none !important; }
+
+  /* Channel grid */
+  .channel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .channel-grid.shake { animation: shake 0.4s ease; }
+  .channel-card {
+    background: #1a1a1a; border: 1.5px solid #272727; border-radius: 12px;
+    padding: 14px 8px; display: flex; flex-direction: column;
+    align-items: center; gap: 5px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .channel-card .ch-label { font-size: 13px; font-weight: 600; color: #aaa; }
+  .channel-card .ch-desc { font-size: 11px; color: #555; text-align: center; line-height: 1.3; }
+  .channel-card .ch-icon { color: #555; display: flex; }
+
+  .channel-card.active-whatsapp { background: rgba(37,211,102,0.1); border-color: rgba(37,211,102,0.35); }
+  .channel-card.active-whatsapp .ch-label { color: #25D366; }
+  .channel-card.active-whatsapp .ch-icon { color: #25D366; }
+  .channel-card.active-email { background: rgba(96,165,250,0.1); border-color: rgba(96,165,250,0.35); }
+  .channel-card.active-email .ch-label { color: #60a5fa; }
+  .channel-card.active-email .ch-icon { color: #60a5fa; }
+  .channel-card.active-site { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.35); }
+  .channel-card.active-site .ch-label { color: #f59e0b; }
+  .channel-card.active-site .ch-icon { color: #f59e0b; }
+
+  /* Contact field */
+  .contact-field { animation: fadeField 0.25s ease; }
+
+  /* Site note */
+  .site-note {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 16px;
+  }
+  .site-note-icon { font-size: 20px; }
+  .site-note-text { color: #a08030; font-size: 13px; line-height: 1.5; }
+
+  /* Frequency */
+  .freq-row { display: flex; gap: 8px; }
+  .freq-btn {
+    flex: 1; background: #1a1a1a; border: 1px solid #2e2e2e; color: #888;
+    border-radius: 8px; padding: 9px 0; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+  }
+  .freq-btn.active { background: rgba(220,50,50,0.15); border-color: rgba(220,50,50,0.4); color: #ff6b6b; }
+
+  /* Actions */
+  .actions { display: flex; gap: 10px; margin-top: 24px; }
+  .cancel-btn {
+    flex: 1; background: transparent; border: 1px solid #2e2e2e;
+    color: #888; border-radius: 8px; padding: 12px; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+  .confirm-btn {
+    flex: 2; background: linear-gradient(135deg, #dc3232, #b02020); border: none;
+    color: #fff; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Confirm box */
+  .confirm-box {
+    background: #1a1a1a; border-radius: 10px; border: 1px solid #272727;
+    overflow: hidden; margin-bottom: 8px;
+  }
+  .confirm-row {
+    display: flex; justify-content: space-between; align-items: center; padding: 12px 16px;
+    border-bottom: 1px solid #222;
+  }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-key { color: #555; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .confirm-val { color: #ccc; font-size: 14px; text-align: right; max-width: 240px; }
+
+  /* Success */
+  .success-panel { text-align: center; padding: 8px 0; }
+  .success-circle {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, #1a5c1a, #2a8c2a); border: 2px solid #3aaa3a;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: #7fff7f; margin: 0 auto 20px;
+    animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  .success-title { font-family: 'Syne', sans-serif; font-size: 24px; color: #fff; margin-bottom: 12px; }
+  .success-text { color: #777; font-size: 14px; line-height: 1.7; margin-bottom: 20px; }
+  .done-btn {
+    background: #1e1e1e; border: 1px solid #303030; color: #ccc;
+    border-radius: 8px; padding: 12px 32px; font-size: 14px; cursor: pointer; margin-top: 8px; font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Steps */
+  .step { display: none; }
+  .step.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Modal — opens automatically -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <button class="close-x hidden" id="closeX">✕</button>
+
+    <!-- Step 1: Details -->
+    <div class="step active" id="step-details">
+      <div class="m-head">
+        <div class="bell-wrap">🔔</div>
+        <h3 class="m-title">Create Search Alert</h3>
+        <p class="m-sub">Choose how you want to be notified when a matching car appears.</p>
+      </div>
+
+      <!-- Active filters injected by JS -->
+      <div class="summary-box">
+        <span class="summary-label">Alert for:</span>
+        <div class="summary-tags" id="filterChips"></div>
+      </div>
+
+      <!-- Channel picker -->
+      <div style="margin-bottom:18px">
+        <label class="label">Notify me via</label>
+        <div class="channel-grid" id="channelGrid">
+          <button class="channel-card" data-channel="whatsapp">
+            <span class="ch-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+            </span>
+            <span class="ch-label">WhatsApp</span>
+            <span class="ch-desc">Message on WhatsApp</span>
+          </button>
+          <button class="channel-card" data-channel="email">
+            <span class="ch-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M2 7l10 7 10-7"/>
+              </svg>
+            </span>
+            <span class="ch-label">Email</span>
+            <span class="ch-desc">Send to your inbox</span>
+          </button>
+          <button class="channel-card" data-channel="site">
+            <span class="ch-icon">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 01-3.46 0"/>
+              </svg>
+            </span>
+            <span class="ch-label">Site Notification</span>
+            <span class="ch-desc">Alert in your account</span>
+          </button>
+        </div>
+        <p class="error-text hidden" id="channelError">Please select a notification method.</p>
+      </div>
+
+      <!-- Contact field -->
+      <div class="field-group contact-field hidden" id="contactField">
+        <label class="label" id="contactLabel">Contact</label>
+        <input class="input" id="contactInput" type="text" placeholder=""/>
+      </div>
+
+      <!-- Site note -->
+      <div class="site-note hidden" id="siteNote">
+        <span class="site-note-icon">🔔</span>
+        <p class="site-note-text">You'll see a notification badge in your account the moment a matching car is listed.</p>
+      </div>
+
+      <!-- Frequency -->
+      <div class="field-group">
+        <label class="label">Notification frequency</label>
+        <div class="freq-row">
+          <button class="freq-btn active" data-freq="instant">Instant</button>
+          <button class="freq-btn" data-freq="daily">Daily</button>
+          <button class="freq-btn" data-freq="weekly">Weekly</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="cancel-btn" id="cancelBtn1">Cancel</button>
+        <button class="confirm-btn" id="createBtn">Create Alert →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Confirm -->
+    <div class="step" id="step-confirm">
+      <div class="m-head">
+        <div class="bell-wrap">📋</div>
+        <h3 class="m-title">Confirm your alert</h3>
+        <p class="m-sub">Review the details before activating.</p>
+      </div>
+      <div class="confirm-box">
+        <div class="confirm-row"><span class="confirm-key">Filters</span><span class="confirm-val" id="confirmFilters">—</span></div>
+        <div class="confirm-row"><span class="confirm-key">Channel</span><span class="confirm-val" id="confirmChannel">—</span></div>
+        <div class="confirm-row"><span class="confirm-key">Contact</span><span class="confirm-val" id="confirmContact">—</span></div>
+        <div class="confirm-row"><span class="confirm-key">Frequency</span><span class="confirm-val" id="confirmFreq">—</span></div>
+      </div>
+      <div class="actions">
+        <button class="cancel-btn" id="backBtn">← Back</button>
+        <button class="confirm-btn" id="activateBtn">Confirm & Activate</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div class="step" id="step-success">
+      <div class="success-panel">
+        <div class="success-circle">✓</div>
+        <h3 class="success-title">Alert Activated!</h3>
+        <p class="success-text" id="successText"></p>
+        <div class="summary-tags" id="successChips" style="justify-content:center; margin-bottom:16px"></div>
+        <button class="done-btn" id="doneBtn">Done</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────────────
+  // أضيفي هنا الفلاتر الجاية من صفحة النتائج
+  const activeFilters = window.alertFilters || [];
+  // مثال للتجربة — احذفي هذا السطر في الإنتاج:
+  // const activeFilters = ['Toyota', 'SUV', 'Diesel'];
+
+  const CHANNELS = {
+    whatsapp: { label: 'WhatsApp', color: '#25D366', placeholder: '+213 6XX XXX XXX', fieldLabel: 'WhatsApp number', fieldType: 'tel' },
+    email:    { label: 'Email',    color: '#60a5fa', placeholder: 'you@example.com',  fieldLabel: 'Email address',    fieldType: 'email' },
+    site:     { label: 'Site Notification', color: '#f59e0b' },
+  };
+
+  // ─── STATE ────────────────────────────────────────────────────────
+  let currentChannel = null;
+  let contactValue   = '';
+  let frequency      = 'instant';
+
+  // ─── ELEMENTS ─────────────────────────────────────────────────────
+  const overlay     = document.getElementById('overlay');
+  const stepDetails = document.getElementById('step-details');
+  const stepConfirm = document.getElementById('step-confirm');
+  const stepSuccess = document.getElementById('step-success');
+
+  // ─── RENDER FILTER CHIPS ──────────────────────────────────────────
+  function renderChips(containerId) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    activeFilters.forEach(f => {
+      const span = document.createElement('span');
+      span.className = 'chip';
+      span.textContent = f;
+      el.appendChild(span);
+    });
+  }
+  renderChips('filterChips');
+
+  // ─── OPEN ON LOAD ─────────────────────────────────────────────────
+  // الـ modal مفتوح من أول ما تحمل الصفحة
+  // إذا تبغي تتحكمي فيه من صفحة ثانية استعملي:
+  // window.openCreateAlert(filters)
+
+  window.openCreateAlert = function(filters) {
+    if (filters) activeFilters.splice(0, activeFilters.length, ...filters);
+    renderChips('filterChips');
+    overlay.classList.remove('hidden');
+    showStep('details');
+  };
+
+  // ─── CLOSE / CANCEL ───────────────────────────────────────────────
+  function closeModal() {
+    overlay.classList.add('hidden');
+    resetState();
+  }
+
+  document.getElementById('cancelBtn1').addEventListener('click', closeModal);
+  document.getElementById('doneBtn').addEventListener('click', closeModal);
+  document.getElementById('backBtn').addEventListener('click', () => showStep('details'));
+  // Close on overlay click
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  // ─── CHANNEL SELECTION ────────────────────────────────────────────
+  document.querySelectorAll('.channel-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentChannel = btn.dataset.channel;
+      contactValue   = '';
+      document.getElementById('contactInput').value = '';
+      updateChannelUI();
+    });
+  });
+
+  function updateChannelUI() {
+    document.querySelectorAll('.channel-card').forEach(b => {
+      b.className = 'channel-card';
+      if (b.dataset.channel === currentChannel) b.classList.add('active-' + currentChannel);
+    });
+    const contactField = document.getElementById('contactField');
+    const siteNote     = document.getElementById('siteNote');
+    const input        = document.getElementById('contactInput');
+    const lbl          = document.getElementById('contactLabel');
+
+    if (currentChannel === 'site') {
+      contactField.classList.add('hidden');
+      siteNote.classList.remove('hidden');
+    } else if (currentChannel) {
+      const cfg = CHANNELS[currentChannel];
+      siteNote.classList.add('hidden');
+      contactField.classList.remove('hidden');
+      contactField.style.animation = 'none';
+      setTimeout(() => { contactField.style.animation = 'fadeField 0.25s ease'; }, 10);
+      lbl.textContent   = cfg.fieldLabel;
+      input.placeholder = cfg.placeholder;
+      input.type        = cfg.fieldType;
+    } else {
+      contactField.classList.add('hidden');
+      siteNote.classList.add('hidden');
+    }
+  }
+
+  // ─── FREQUENCY ────────────────────────────────────────────────────
+  document.querySelectorAll('.freq-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      frequency = btn.dataset.freq;
+      document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  document.getElementById('contactInput').addEventListener('input', e => {
+    contactValue = e.target.value;
+  });
+
+  // ─── VALIDATE & NEXT ──────────────────────────────────────────────
+  document.getElementById('createBtn').addEventListener('click', () => {
+    if (!validate()) return;
+    populateConfirm();
+    showStep('confirm');
+  });
+
+  document.getElementById('activateBtn').addEventListener('click', () => {
+    populateSuccess();
+    showStep('success');
+  });
+
+  function validate() {
+    let valid = true;
+    const grid  = document.getElementById('channelGrid');
+    const errEl = document.getElementById('channelError');
+    const input = document.getElementById('contactInput');
+
+    if (!currentChannel) {
+      grid.classList.add('shake');
+      errEl.classList.remove('hidden');
+      setTimeout(() => grid.classList.remove('shake'), 500);
+      valid = false;
+    } else {
+      errEl.classList.add('hidden');
+    }
+
+    if (currentChannel === 'email' && !contactValue.includes('@')) {
+      input.classList.add('error'); setTimeout(() => input.classList.remove('error'), 500); valid = false;
+    } else if (currentChannel === 'whatsapp' && contactValue.replace(/\D/g,'').length < 8) {
+      input.classList.add('error'); setTimeout(() => input.classList.remove('error'), 500); valid = false;
+    }
+
+    return valid;
+  }
+
+  function populateConfirm() {
+    const ch = CHANNELS[currentChannel];
+    document.getElementById('confirmFilters').textContent  = activeFilters.length ? activeFilters.join(', ') : '—';
+    document.getElementById('confirmChannel').textContent  = ch.label;
+    document.getElementById('confirmContact').textContent  = currentChannel === 'site' ? 'Your account' : (contactValue || '—');
+    document.getElementById('confirmFreq').textContent     = frequency.charAt(0).toUpperCase() + frequency.slice(1);
+  }
+
+  function populateSuccess() {
+    const ch = CHANNELS[currentChannel];
+    let text = `You'll receive a <strong>${frequency}</strong> notification via <strong style="color:${ch.color}">${ch.label}</strong>`;
+    if (currentChannel !== 'site') text += ` at <strong>${contactValue}</strong>`;
+    text += ' as soon as a matching listing appears.';
+    document.getElementById('successText').innerHTML = text;
+    renderChips('successChips');
+  }
+
+  // ─── STEP NAVIGATION ──────────────────────────────────────────────
+  function showStep(step) {
+    stepDetails.classList.remove('active');
+    stepConfirm.classList.remove('active');
+    stepSuccess.classList.remove('active');
+    if (step === 'details') stepDetails.classList.add('active');
+    if (step === 'confirm') stepConfirm.classList.add('active');
+    if (step === 'success') stepSuccess.classList.add('active');
+  }
+
+  function resetState() {
+    currentChannel = null; contactValue = ''; frequency = 'instant';
+    document.getElementById('contactInput').value = '';
+    document.getElementById('channelError').classList.add('hidden');
+    document.querySelectorAll('.channel-card').forEach(b => b.className = 'channel-card');
+    document.querySelectorAll('.freq-btn').forEach(b => {
+      b.classList.remove('active');
+      if (b.dataset.freq === 'instant') b.classList.add('active');
+    });
+    document.getElementById('contactField').classList.add('hidden');
+    document.getElementById('siteNote').classList.add('hidden');
+    showStep('details');
+  }
+</script>
+</body>
+</html>
