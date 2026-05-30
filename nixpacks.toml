@@ -1,5 +1,0 @@
-[phases.setup]
-nixPkgs = ["php", "php83Extensions.mysqli", "php83Extensions.pdo", "apacheHttpd"]
-
-[start]
-cmd = "apache2 -D FOREGROUND"
