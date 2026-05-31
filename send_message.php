@@ -58,7 +58,7 @@ $senderData = $sender->fetch(PDO::FETCH_ASSOC);
 $senderName = trim(($senderData['first_name']??'') . ' ' . ($senderData['last_name']??''));
 
 $pdo->prepare("
-    INSERT INTO notifications (user_id, from_user_id, title, message, type)
+    INSERT INTO notifications (user_id, sender_id, title, message, type)
     VALUES (?, ?, ?, ?, 'message')
 ")->execute([
     $agent_id,
